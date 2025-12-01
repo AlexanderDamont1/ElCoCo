@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .infinite-carousel {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        height: 80px;
+    }
+
+    .infinite-carousel::before,
+    .infinite-carousel::after {
+        content: attr(data-content);
+        position: absolute;
+        top: 0;
+        white-space: nowrap;
+        display: inline-block;
+        height: 100%;
+        line-height: 80px;
+        
+        opacity: 0.7;
+    }
+
+    .infinite-carousel::before {
+        left: 0;
+        animation: scrollTrack 20s linear infinite;
+    }
+
+    .infinite-carousel::after {
+        left: 100%;
+        animation: scrollTrack 20s linear infinite;
+    }
+
+    @keyframes scrollTrack {
+        0%   { transform: translate3d(0, 0, 0); }
+        100% { transform: translate3d(-100%, 0, 0); }
+    }
+}

@@ -17,16 +17,24 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
 
-            /* ANIMACIONES PERSONALIZADAS */
             keyframes: {
                 fadeIn: {
                     "0%": { opacity: 0, transform: "translateY(10px)" },
                     "100%": { opacity: 1, transform: "translateY(0)" }
+                },
+
+                /* 🌈 Scroll sin pausas (suave, continuo y optimizado con GPU) */
+                scroll: {
+                    "0%": { transform: "translate3d(0,0,0)" },
+                    "100%": { transform: "translate3d(-100%,0,0)" }
                 }
             },
 
             animation: {
-                fade: "fadeIn 0.4s ease-out"
+                fade: "fadeIn 0.4s ease-out",
+
+                /* 🚀 Animación completamente continua */
+                scroll: "scroll 20s linear infinite"
             }
         },
     },
