@@ -1,98 +1,50 @@
 <?php
-
+// app/Models/Quote.php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Quote extends Model
 {
-    use HasFactory;
-
-    /**
-     * Los atributos que son asignables en masa.
-     *
-     * @var array
-     */
     protected $fillable = [
-        'name',
-        'email',
+        'reference',
+        'client_name',
+        'client_email',
+        'client_company',
+        'client_phone',
         'project_description',
-        'blocks',
+        'additional_requirements',
+        'data',
+        'subtotal',
+        'tax',
+        'total',
         'total_hours',
-        'total_cost',
-        'ip_address',
-        'user_agent',
         'status',
+        'sent_at',
+        'pdf_path'
     ];
 
-    /**
-     * Los atributos que deberían ser casteados.
-     *
-     * @var array
-     */
     protected $casts = [
-        'blocks' => 'array',
-        'total_hours' => 'integer',
-        'total_cost' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'data' => 'array',
+        'sent_at' => 'datetime',
+        'subtotal' => 'decimal:2',
+        'tax' => 'decimal:2',
+        'total' => 'decimal:2',
+        'total_hours' => 'integer'
     ];
 
-    /**
-     * Los valores por defecto para los atributos del modelo.
-     *
-     * @var array
-     */
-    protected $attributes = [
-        'status' => 'pending',
-    ];
-
-    /**
-     * Obtener el precio por hora (siempre $500 MXN)
-     */
-    public function getPricePerHourAttribute()
+    protected static function boot()
     {
-        return 500;
+        parent::boot();
+
+        static::creating(function ($quote) {
+            $quote->reference = 'COT-' . strtoupper(uniqid());
+        });
     }
 
-    /**
-     * Formatear el costo total
-     */
-    public function getFormattedTotalAttribute()
+    public function getPdfUrlAttribute()
     {
-        return '$' . number_format($this->total_cost, 0, '.', ',') . ' MXN';
-    }
-
-    /**
-     * Obtener el número de referencia
-     */
-    public function getReferenceAttribute()
-    {
-        return 'QUOTE-' . str_pad($this->id, 8, '0', STR_PAD_LEFT);
-    }
-
-    /**
-     * Scope para cotizaciones pendientes
-     */
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
-    }
-
-    /**
-     * Scope para cotizaciones procesadas
-     */
-    public function scopeProcessed($query)
-    {
-        return $query->where('status', 'processed');
-    }
-
-    /**
-     * Scope para buscar por email
-     */
-    public function scopeByEmail($query, $email)
-    {
-        return $query->where('email', $email);
+        return $this->pdf_path ? asset('storage/' . $this->pdf_path) : null;
     }
 }

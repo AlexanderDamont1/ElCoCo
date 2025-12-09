@@ -704,7 +704,7 @@
                 <a href="#testimonials" class="nav-link">Testimonials</a>
                 <a href="#pricing" class="nav-link">Pricing</a>
                 <a href="{{ route('login') }}" class="nav-link">Log in</a>
-               <a href="{{ route('quote.builder') }}" class="nav-button">Get Started</a>
+                <a href="{{ route('quote.builder') }}" class="nav-button">Quiero una Cotizacion</a>
             </div>
         </div>
     </nav>

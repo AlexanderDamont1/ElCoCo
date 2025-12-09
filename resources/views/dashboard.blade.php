@@ -4,6 +4,10 @@
             {{ __('Dashboard') }}
             
         </h2>
+        <a href="{{ route('admin.quote-blocks.index') }}" 
+           class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Administrar Bloques
+        </a>
     </x-slot>
 
     <div class="py-12">

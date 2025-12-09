@@ -1,5 +1,5 @@
 <?php
-
+// app/Mail/QuoteReceived.php
 namespace App\Mail;
 
 use App\Models\Quote;
@@ -13,26 +13,15 @@ class QuoteReceived extends Mailable
 
     public $quote;
 
-    /**
-     * Create a new message instance.
-     */
     public function __construct(Quote $quote)
     {
         $this->quote = $quote;
     }
 
-    /**
-     * Build the message.
-     */
     public function build()
     {
-        return $this->subject('🎉 ¡Hemos recibido tu cotización!')
+        return $this->subject('Cotización recibida - ' . $this->quote->reference)
                     ->markdown('emails.quote.received')
-                    ->with([
-                        'quote' => $this->quote,
-                        'blocks' => $this->quote->blocks,
-                        'totalHours' => $this->quote->total_hours,
-                        'totalCost' => $this->quote->total_cost,
-                    ]);
+                    ->attachFromStorage('public/' . $this->quote->pdf_path, 'cotizacion.pdf');
     }
 }

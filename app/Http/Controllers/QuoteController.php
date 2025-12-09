@@ -1,36 +1,143 @@
 <?php
-
+// app/Http/Controllers/QuoteController.php
 namespace App\Http\Controllers;
 
 use App\Models\Quote;
+use App\Services\QuotePdfService;
 use App\Mail\QuoteReceived;
 use App\Mail\QuoteAdminNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class QuoteController extends Controller
 {
-    /**
-     * Mostrar el constructor de cotizaciones
-     */
-    public function showBuilder()
+    public function builder()
     {
-        return view('quote-builder');
+        return view('quotes.builder');
     }
 
-    /**
-     * Procesar el envío de la cotización
-     */
-    public function submitQuote(Request $request)
+    public function apiBlocks()
+    {
+        $categories = \App\Models\QuoteBlockCategory::with(['blocks' => function($query) {
+            $query->active()->ordered();
+        }])->active()->ordered()->get();
+
+        return response()->json([
+            'categories' => $categories,
+            'blocks' => $categories->flatMap->blocks
+        ]);
+    }
+
+    public function getBlocksByCategory($id)
+{
+    return response()->json(
+        QuoteBlock::byCategory($id)->active()->ordered()->get()
+    );
+}
+
+
+    public function saveDraft(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'project_description' => 'nullable|string',
+            'client.name' => 'required|string|max:255',
+            'client.email' => 'required|email|max:255',
             'blocks' => 'required|array',
-            'total_hours' => 'required|integer|min:1',
-            'total_cost' => 'required|integer|min:500',
+            'summary.total' => 'required|numeric|min:0'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $quote = Quote::create([
+            'client_name' => $request->input('client.name'),
+            'client_email' => $request->input('client.email'),
+            'client_company' => $request->input('client.company'),
+            'client_phone' => $request->input('client.phone'),
+            'project_description' => $request->input('client.project_description'),
+            'additional_requirements' => $request->input('client.additional_requirements'),
+            'data' => $request->all(),
+            'subtotal' => $request->input('summary.subtotal', 0),
+            'tax' => $request->input('summary.tax', 0),
+            'total' => $request->input('summary.total', 0),
+            'total_hours' => $request->input('summary.hours', 0),
+            'status' => 'draft'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'reference' => $quote->reference,
+            'message' => 'Cotización guardada como borrador'
+        ]);
+    }
+
+    public function generatePdf(Request $request)
+    {
+        $pdfService = new QuotePdfService();
+        $pdf = $pdfService->generate($request->all());
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="cotizacion.pdf"'
+        ]);
+    }
+
+
+    public function getStatistics()
+{
+    return response()->json([
+        'total' => Quote::count(),
+        'today' => Quote::whereDate('created_at', now())->count(),
+        'total_value' => Quote::sum('total'),
+        'average_value' => Quote::avg('total')
+    ]);
+}
+
+public function getRecentQuotes(Request $request)
+{
+    $limit = $request->input('limit', 10);
+    $quotes = Quote::latest()->take($limit)->get();
+
+    return response()->json([
+        'success' => true,
+        'quotes' => $quotes
+    ]);
+}
+
+public function duplicateQuote($id)
+{
+    $original = Quote::findOrFail($id);
+    $copy = $original->replicate();
+    $copy->reference = $original->reference . '-COPY';
+    $copy->save();
+
+    return response()->json([
+        'success' => true,
+        'quote' => $copy
+    ]);
+}
+
+public function exportQuotes()
+{
+    return response()->json([
+        'message' => 'Export functionality pending'
+    ]);
+}
+
+    public function submit(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'client.name' => 'required|string|max:255',
+            'client.email' => 'required|email|max:255',
+            'client.company' => 'required|string|max:255',
+            'client.phone' => 'required|string|max:20',
+            'blocks' => 'required|array|min:1',
+            'summary.total' => 'required|numeric|min:100'
         ]);
 
         if ($validator->fails()) {
@@ -41,33 +148,47 @@ class QuoteController extends Controller
         }
 
         try {
-            // Crear la cotización en la base de datos
+            // Guardar cotización
             $quote = Quote::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'project_description' => $request->project_description,
-                'blocks' => json_encode($request->blocks),
-                'total_hours' => $request->total_hours,
-                'total_cost' => $request->total_cost,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
+                'client_name' => $request->input('client.name'),
+                'client_email' => $request->input('client.email'),
+                'client_company' => $request->input('client.company'),
+                'client_phone' => $request->input('client.phone'),
+                'project_description' => $request->input('client.project_description'),
+                'additional_requirements' => $request->input('client.additional_requirements'),
+                'data' => $request->all(),
+                'subtotal' => $request->input('summary.subtotal', 0),
+                'tax' => $request->input('summary.tax', 0),
+                'total' => $request->input('summary.total', 0),
+                'total_hours' => $request->input('summary.hours', 0),
+                'status' => 'sent',
+                'sent_at' => now()
             ]);
 
-            // Enviar email al cliente
-            Mail::to($request->email)->send(new QuoteReceived($quote));
+            // Generar PDF
+            $pdfService = new QuotePdfService();
+            $pdfContent = $pdfService->generate($request->all());
+            
+            $pdfPath = 'quotes/' . $quote->reference . '.pdf';
+            Storage::put('public/' . $pdfPath, $pdfContent);
+            
+            $quote->update(['pdf_path' => $pdfPath]);
 
-            // Enviar email al administrador
+            // Enviar emails
+            Mail::to($quote->client_email)->send(new QuoteReceived($quote));
             Mail::to(config('mail.admin_email'))->send(new QuoteAdminNotification($quote));
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cotización enviada exitosamente',
-                'quote_id' => $quote->id,
-                'reference' => 'QUOTE-' . str_pad($quote->id, 8, '0', STR_PAD_LEFT)
+                'reference' => $quote->reference,
+                'pdf_url' => asset('storage/' . $pdfPath),
+                'message' => 'Cotización enviada exitosamente'
             ]);
 
+            
+
         } catch (\Exception $e) {
-            \Log::error('Error al procesar cotización: ' . $e->getMessage());
+            \Log::error('Error submitting quote: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -75,20 +196,5 @@ class QuoteController extends Controller
             ], 500);
         }
     }
-
-    /**
-     * Exportar cotización como PDF
-     */
-    public function exportPdf($id)
-    {
-        $quote = Quote::findOrFail($id);
-        
-        // Aquí iría la lógica para generar el PDF
-        // Usando DomPDF, TCPDF, o similar
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'PDF generado exitosamente'
-        ]);
-    }
+    
 }
