@@ -104,7 +104,7 @@ class QuoteApiController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Error saving draft: ' . $e->getMessage());
+            Log::error('Error saving draft: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,
@@ -154,7 +154,7 @@ class QuoteApiController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            \Log::error('Error generating PDF: ' . $e->getMessage());
+            Log::error('Error generating PDF: ' . $e->getMessage());
             
             return response()->json([
                 'success' => false,

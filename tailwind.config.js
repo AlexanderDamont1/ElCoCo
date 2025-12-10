@@ -14,30 +14,45 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Instrument Sans', ...defaultTheme.fontFamily.sans],
             },
-
-            keyframes: {
-                fadeIn: {
-                    "0%": { opacity: 0, transform: "translateY(10px)" },
-                    "100%": { opacity: 1, transform: "translateY(0)" }
+            colors: {
+                'gray': {
+                    50: '#F9FAFB',
+                    100: '#F3F4F6',
+                    200: '#E5E7EB',
+                    300: '#D1D5DB',
+                    400: '#9CA3AF',
+                    500: '#6B7280',
+                    600: '#4B5563',
+                    700: '#374151',
+                    800: '#1F2937',
+                    900: '#111827',
                 },
-
-                /* 🌈 Scroll sin pausas (suave, continuo y optimizado con GPU) */
-                scroll: {
-                    "0%": { transform: "translate3d(0,0,0)" },
-                    "100%": { transform: "translate3d(-100%,0,0)" }
+                'accent': {
+                    DEFAULT: '#374151',
+                    light: '#4B5563',
+                    dark: '#1F2937',
                 }
             },
-
             animation: {
-                fade: "fadeIn 0.4s ease-out",
-
-                /* 🚀 Animación completamente continua */
-                scroll: "scroll 20s linear infinite"
+                'fade-up': 'fadeUp 0.6s ease forwards',
+                'fade-in': 'fadeIn 0.5s ease-in-out',
+            },
+            keyframes: {
+                fadeUp: {
+                    '0%': { opacity: '0', transform: 'translateY(20px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' }
+                },
+                fadeIn: {
+                    '0%': { opacity: '0' },
+                    '100%': { opacity: '1' }
+                }
             }
+            
         },
     },
+    
 
     plugins: [forms],
 };

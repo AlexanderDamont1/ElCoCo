@@ -5,856 +5,386 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Digital Market Intelligence') }}</title>
     
-    <!-- Fuente especificada -->
+    <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
-        /* PALETA DE CONSULTORÍA PROFESIONAL */
+        /* Variables CSS actualizadas */
         :root {
-            /* Colores neutros y elegantes */
-            --black: #000000;
-            --gray-900: #111827;
-            --gray-800: #1F2937;
-            --gray-700: #374151;
-            --gray-600: #4B5563;
-            --gray-500: #6B7280;
-            --gray-400: #9CA3AF;
-            --gray-300: #D1D5DB;
-            --gray-200: #E5E7EB;
-            --gray-100: #F3F4F6;
-            --gray-50: #F9FAFB;
-            --white: #FFFFFF;
-            
-            /* Acento profesional (gris oscuro como acento) */
             --accent: #374151;
             --accent-light: #4B5563;
             --accent-dark: #1F2937;
-            
-            /* Tipografía uniforme */
-            --font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            
-            /* Espaciado consistente */
-            --space-1: 0.25rem;
-            --space-2: 0.5rem;
-            --space-3: 0.75rem;
-            --space-4: 1rem;
-            --space-5: 1.25rem;
-            --space-6: 1.5rem;
-            --space-8: 2rem;
-            --space-10: 2.5rem;
-            --space-12: 3rem;
-            --space-16: 4rem;
-            --space-20: 5rem;
-            --space-24: 6rem;
-            
-            /* Breakpoints claros */
-            --screen-sm: 640px;
-            --screen-md: 768px;
-            --screen-lg: 1024px;
-            --screen-xl: 1280px;
-            --screen-2xl: 1536px;
+            --animation-duration: 0.8s;
+            --animation-timing: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* RESET CONSISTENTE */
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Smooth scroll con comportamiento suave */
         html {
-            font-size: 16px;
             scroll-behavior: smooth;
-            -webkit-text-size-adjust: 100%;
-        }
-
-        body {
-            font-family: var(--font-family);
-            font-weight: 400;
-            line-height: 1.6;
-            color: var(--gray-700);
-            background-color: var(--white);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            scroll-padding-top: 5rem;
             overflow-x: hidden;
-            width: 100%;
         }
 
-        /* TIPOGRAFÍA RESPONSIVA */
-        h1, h2, h3, h4, h5, h6 {
-            font-family: var(--font-family);
-            font-weight: 600;
-            line-height: 1.2;
-            color: var(--gray-900);
-            margin-bottom: var(--space-4);
+        /* Ajuste para navbar fija */
+        body {
+            padding-top: 5rem;
+            overflow-x: hidden;
         }
 
-        h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
-            font-weight: 700;
-            letter-spacing: -0.025em;
-        }
-
-        h2 {
-            font-size: clamp(1.5rem, 4vw, 2.5rem);
-            font-weight: 600;
-        }
-
-        h3 {
-            font-size: clamp(1.25rem, 3vw, 1.75rem);
-            font-weight: 600;
-        }
-
-        p {
-            font-size: clamp(1rem, 2vw, 1.125rem);
-            line-height: 1.7;
-            margin-bottom: var(--space-4);
-        }
-
-        .text-lead {
-            font-size: clamp(1.125rem, 2.5vw, 1.25rem);
-            font-weight: 400;
-            color: var(--gray-600);
-            line-height: 1.6;
-        }
-
-        .text-caption {
-            font-size: 0.875rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            color: var(--accent);
-            display: inline-block;
-            margin-bottom: var(--space-4);
-        }
-
-        /* CONTENEDORES RESPONSIVOS */
-        .container {
-            width: 100%;
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 var(--space-4);
-        }
-
-        @media (min-width: 640px) {
-            .container {
-                padding: 0 var(--space-6);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .container {
-                padding: 0 var(--space-8);
-            }
-        }
-
-        /* NAVBAR PROFESIONAL Y RESPONSIVE */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: var(--white);
-            border-bottom: 1px solid var(--gray-200);
-            padding: var(--space-4) 0;
-            transition: all 0.3s ease;
-        }
-
-        .navbar.scrolled {
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-            text-decoration: none;
-        }
-
-        .navbar-logo {
-            height: 2.5rem;
-            width: auto;
-        }
-
-        .brand-name {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--gray-900);
-            white-space: nowrap;
-        }
-
-        /* Menú desktop */
-        .navbar-menu {
-            display: none;
-            align-items: center;
-            gap: var(--space-8);
-        }
-
-        @media (min-width: 768px) {
-            .navbar-menu {
-                display: flex;
-            }
-        }
-
-        .nav-link {
-            text-decoration: none;
-            color: var(--gray-700);
-            font-weight: 500;
-            font-size: 0.95rem;
-            padding: var(--space-2) 0;
-            position: relative;
-            transition: color 0.2s ease;
-        }
-
-        .nav-link:hover {
-            color: var(--accent);
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent);
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        .nav-button {
-            padding: 0.625rem 1.5rem;
-            background: var(--accent);
-            color: var(--white);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.95rem;
-            border-radius: 0.375rem;
-            transition: all 0.2s ease;
-        }
-
-        .nav-button:hover {
-            background: var(--accent-dark);
-            transform: translateY(-1px);
-        }
-
-        /* Menú móvil */
-        .mobile-menu-button {
-            display: block;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: var(--space-2);
-        }
-
-        @media (min-width: 768px) {
-            .mobile-menu-button {
-                display: none;
-            }
-        }
-
-        .mobile-menu {
-            position: fixed;
-            top: 73px; /* Altura del navbar */
-            left: 0;
-            right: 0;
-            background: var(--white);
-            border-top: 1px solid var(--gray-200);
-            padding: var(--space-4);
-            display: none;
-            flex-direction: column;
-            gap: var(--space-4);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .mobile-menu.active {
-            display: flex;
-        }
-
-        .mobile-nav-link {
-            text-decoration: none;
-            color: var(--gray-700);
-            font-weight: 500;
-            padding: var(--space-3) 0;
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        .mobile-nav-link:last-child {
-            border-bottom: none;
-        }
-
-        /* HERO SECTION - PERFECTAMENTE RESPONSIVE */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: calc(var(--space-24) + 1rem) var(--space-4) var(--space-16);
-            background: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
-        }
-
-        @media (min-width: 768px) {
-            .hero {
-                padding: var(--space-24) var(--space-6) var(--space-16);
-            }
-        }
-
-        .hero-content {
-            width: 100%;
-            max-width: 48rem;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            padding: var(--space-2) var(--space-4);
-            background: var(--gray-100);
-            color: var(--accent);
-            font-size: 0.875rem;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            border-radius: 9999px;
-            margin-bottom: var(--space-6);
-        }
-
-        .hero-title {
-            margin-bottom: var(--space-6);
-            line-height: 1.1;
-        }
-
-        .hero-description {
-            font-size: clamp(1.125rem, 2.5vw, 1.25rem);
-            color: var(--gray-600);
-            margin-bottom: var(--space-8);
-            max-width: 40rem;
-        }
-
-        .hero-actions {
-            display: flex;
-            flex-direction: column;
-            gap: var(--space-4);
-        }
-
-        @media (min-width: 640px) {
-            .hero-actions {
-                flex-direction: row;
-                flex-wrap: wrap;
-            }
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.875rem 2rem;
-            font-family: var(--font-family);
-            font-weight: 500;
-            font-size: 1rem;
-            text-decoration: none;
-            border-radius: 0.375rem;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
-            gap: var(--space-3);
-            text-align: center;
-            width: 100%;
-        }
-
-        @media (min-width: 640px) {
-            .btn {
-                width: auto;
-            }
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: var(--white);
-        }
-
-        .btn-primary:hover {
-            background: var(--accent-dark);
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--gray-700);
-            border-color: var(--gray-300);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            transform: translateY(-1px);
-        }
-
-        /* SECCIÓN DE SERVICIOS */
-        .section {
-            padding: var(--space-16) var(--space-4);
-        }
-
-        @media (min-width: 768px) {
-            .section {
-                padding: var(--space-20) var(--space-6);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .section {
-                padding: var(--space-24) var(--space-8);
-            }
-        }
-
-        .section-header {
-            text-align: center;
-            max-width: 48rem;
-            margin: 0 auto var(--space-12);
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: var(--space-8);
-            max-width: 72rem;
-            margin: 0 auto;
-        }
-
-        @media (min-width: 640px) {
-            .services-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .services-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .service-card {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: 0.5rem;
-            padding: var(--space-6);
-            transition: all 0.3s ease;
-        }
-
-        .service-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-color: var(--accent);
-        }
-
-        .service-icon {
-            width: 3rem;
-            height: 3rem;
-            background: var(--gray-100);
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: var(--space-4);
-        }
-
-        .service-icon svg {
-            width: 1.5rem;
-            height: 1.5rem;
-            color: var(--accent);
-        }
-
-        /* SECCIÓN DE CLIENTES */
-        .clients {
-            background: var(--gray-50);
-        }
-
-        .clients-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--space-8);
-            align-items: center;
-            max-width: 72rem;
-            margin: 0 auto;
-        }
-
-        @media (min-width: 640px) {
-            .clients-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .clients-grid {
-                grid-template-columns: repeat(5, 1fr);
-            }
-        }
-
-        .client-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var(--space-4);
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: 0.375rem;
-            transition: all 0.3s ease;
-        }
-
-        .client-logo:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .client-logo img {
-            max-height: 2.5rem;
-            width: auto;
-            object-fit: contain;
-        }
-
-        /* SECCIÓN DE MÉTRICAS */
-        .metrics {
-            background: var(--gray-900);
-            color: var(--white);
-        }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--space-8);
-            text-align: center;
-        }
-
-        @media (min-width: 768px) {
-            .metrics-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        .metric-item {
-            padding: var(--space-4);
-        }
-
-        .metric-value {
-            font-size: clamp(2rem, 5vw, 2.5rem);
-            font-weight: 700;
-            color: var(--white);
-            margin-bottom: var(--space-2);
-        }
-
-        .metric-label {
-            font-size: 0.875rem;
-            color: var(--gray-300);
-        }
-
-        /* TESTIMONIOS */
-        .testimonials-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: var(--space-8);
-            max-width: 72rem;
-            margin: 0 auto;
-        }
-
-        @media (min-width: 768px) {
-            .testimonials-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .testimonials-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        .testimonial-card {
-            background: var(--white);
-            border: 1px solid var(--gray-200);
-            border-radius: 0.5rem;
-            padding: var(--space-6);
-            transition: all 0.3s ease;
-        }
-
-        .testimonial-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        .testimonial-text {
-            font-style: italic;
-            color: var(--gray-600);
-            margin-bottom: var(--space-4);
-            position: relative;
-            padding-left: var(--space-4);
-        }
-
-        .testimonial-text::before {
-            content: '"';
-            position: absolute;
-            left: 0;
-            top: -0.5rem;
-            font-size: 2rem;
-            color: var(--gray-300);
-        }
-
-        .testimonial-author {
-            display: flex;
-            align-items: center;
-            gap: var(--space-3);
-        }
-
-        .author-avatar {
-            width: 2.5rem;
-            height: 2.5rem;
-            background: var(--gray-200);
-            border-radius: 9999px;
-        }
-
-        .author-info h4 {
-            font-size: 0.875rem;
-            margin-bottom: 0.125rem;
-        }
-
-        .author-info p {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            margin: 0;
-        }
-
-        /* CTA SECTION */
-        .cta {
-            background: var(--gray-100);
-            text-align: center;
-        }
-
-        .cta-content {
-            max-width: 48rem;
-            margin: 0 auto;
-        }
-
-        .cta-title {
-            margin-bottom: var(--space-4);
-        }
-
-        .cta-description {
-            color: var(--gray-600);
-            margin-bottom: var(--space-8);
-        }
-
-        /* FOOTER */
-        .footer {
-            background: var(--gray-900);
-            color: var(--white);
-            padding: var(--space-12) var(--space-4);
-        }
-
-        @media (min-width: 768px) {
-            .footer {
-                padding: var(--space-16) var(--space-6);
-            }
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: var(--space-8);
-            max-width: 72rem;
-            margin: 0 auto var(--space-8);
-        }
-
-        @media (min-width: 768px) {
-            .footer-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (min-width: 1024px) {
-            .footer-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-
-        .footer-column h3 {
-            color: var(--white);
-            font-size: 1rem;
-            margin-bottom: var(--space-4);
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: var(--space-2);
-        }
-
-        .footer-links a {
-            color: var(--gray-400);
-            text-decoration: none;
-            font-size: 0.875rem;
-            transition: color 0.2s ease;
-        }
-
-        .footer-links a:hover {
-            color: var(--white);
-        }
-
-        .contact-info {
-            color: var(--gray-400);
-            font-size: 0.875rem;
-            line-height: 1.5;
-        }
-
-        .footer-bottom {
-            max-width: 72rem;
-            margin: 0 auto;
-            padding-top: var(--space-8);
-            border-top: 1px solid var(--gray-800);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: var(--space-4);
-            text-align: center;
-        }
-
-        @media (min-width: 640px) {
-            .footer-bottom {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                text-align: left;
-            }
-        }
-
-        .copyright {
-            color: var(--gray-500);
-            font-size: 0.875rem;
-        }
-
-        .footer-social {
-            display: flex;
-            gap: var(--space-4);
-        }
-
-        .social-link {
-            color: var(--gray-400);
-            text-decoration: none;
-            font-size: 0.875rem;
-            transition: color 0.2s ease;
-        }
-
-        .social-link:hover {
-            color: var(--white);
-        }
-
-        /* UTILIDADES RESPONSIVAS */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* ANIMACIONES SUTILES */
-        .fade-up {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.6s ease forwards;
-        }
-
+        /* Mejores animaciones CSS */
         @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.98);
+            }
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: translateY(0) scale(1);
             }
         }
 
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes borderGlow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(55, 65, 81, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 20px 5px rgba(55, 65, 81, 0.3);
+            }
+        }
+
+        @keyframes textReveal {
+            from {
+                clip-path: inset(0 100% 0 0);
+            }
+            to {
+                clip-path: inset(0 0 0 0);
+            }
+        }
+
+        /* Clases de animación */
+        .animate-fade-up {
+            animation: fadeUp var(--animation-duration) var(--animation-timing) forwards;
+            opacity: 0;
+        }
+
+        .animate-slide-left {
+            animation: slideInLeft var(--animation-duration) var(--animation-timing) forwards;
+            opacity: 0;
+        }
+
+        .animate-slide-right {
+            animation: slideInRight var(--animation-duration) var(--animation-timing) forwards;
+            opacity: 0;
+        }
+
+        .animate-scale-in {
+            animation: scaleIn var(--animation-duration) var(--animation-timing) forwards;
+            opacity: 0;
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .animate-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        .animate-glow {
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+
+        .animate-text-reveal {
+            animation: textReveal 1.5s var(--animation-timing) forwards;
+            clip-path: inset(0 100% 0 0);
+        }
+
+        /* Stagger animations */
+        .stagger-child > * {
+            opacity: 0;
+            animation: fadeUp var(--animation-duration) var(--animation-timing) forwards;
+        }
+
+        /* Hover effects mejorados */
+        .hover-lift {
+            transition: transform 0.3s var(--animation-timing);
+        }
+        .hover-lift:hover {
+            transform: translateY(-8px);
+        }
+
+        .hover-glow:hover {
+            box-shadow: 0 10px 40px -10px rgba(55, 65, 81, 0.2);
+        }
+
+        /* Clases de utilidad personalizadas */
+        .text-balance {
+            text-wrap: balance;
+        }
+
+        .backdrop-blur-sm {
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* Smooth transitions */
+        .transition-smooth {
+            transition: all 0.4s var(--animation-timing);
+        }
+
+        /* Mejoras de accesibilidad */
+        @media (prefers-reduced-motion: reduce) {
+            .animate-fade-up,
+            .animate-slide-left,
+            .animate-slide-right,
+            .animate-scale-in,
+            .animate-float,
+            .animate-shimmer,
+            .animate-gradient,
+            .animate-glow,
+            .animate-text-reveal {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+                clip-path: none !important;
+            }
+        }
+
+        /* Efecto parallax para el hero */
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        /* Gradiente animado para el hero */
+        .hero-gradient {
+            background: linear-gradient(-45deg, #f3f4f6, #ffffff, #f8fafc, #f1f5f9);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+        }
     </style>
 </head>
 
-<body>
-    <!-- NAVBAR -->
-    <nav class="navbar" id="navbar">
-        <div class="container navbar-container">
-            <a href="/" class="navbar-brand">
-                <img src="/images/DMI-logob.png" alt="DMI Logo" class="navbar-logo">
-                <span class="brand-name">Digital Market Intelligence</span>
-            </a>
+<body class="font-sans antialiased text-gray-700 bg-white">
+    <!-- NAVBAR con animaciones mejoradas -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-white/90 border-b border-gray-200/50 py-4 transition-all duration-300 backdrop-blur-sm">
+        <div class="container mx-auto px-4 md:px-6 lg:px-8">
+            <div class="flex items-center justify-between">
+                <!-- Logo con animación -->
+                <a href="{{ url('/') }}" class="flex items-center gap-3 group">
+                    <div class="relative">
+                        <img src="/images/DMI-logob.png" alt="DMI Logo" class="h-10 w-auto transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-accent opacity-0 group-hover:opacity-10 rounded-lg transition-opacity duration-300"></div>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900 whitespace-nowrap transition-all duration-300 group-hover:text-accent">
+                        Digital Market Intelligence
+                    </span>
+                </a>
 
-            <!-- Menú Desktop -->
-            <div class="navbar-menu">
-                <a href="#servicios" class="nav-link">Servicios</a>
-                <a href="#clientes" class="nav-link">Clientes</a>
-                <a href="#resultados" class="nav-link">Resultados</a>
-                <a href="#testimonios" class="nav-link">Testimonios</a>
-                <a href="{{ route('login') }}" class="nav-link">Acceso Clientes</a>
-                <a href="{{ route('quote.builder') }}" class="nav-button">Contactar</a>
+                <!-- Menú Desktop con efectos hover mejorados -->
+                <div class="hidden md:flex items-center gap-8">
+                    @foreach([
+                        ['href' => '#servicios', 'text' => 'Servicios'],
+                        ['href' => '#clientes', 'text' => 'Clientes'],
+                        ['href' => '#resultados', 'text' => 'Resultados'],
+                        ['href' => '#testimonios', 'text' => 'Testimonios']
+                    ] as $item)
+                    <a href="{{ $item['href'] }}" 
+                       class="text-gray-700 font-medium text-sm hover:text-accent transition-all duration-300 relative group">
+                        <span class="relative z-10">{{ $item['text'] }}</span>
+                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-accent transition-all duration-300 group-hover:w-full"></span>
+                        <span class="absolute inset-0 bg-accent/5 rounded-md scale-0 group-hover:scale-100 transition-transform duration-300"></span>
+                    </a>
+                    @endforeach
+                    
+                    <a href="{{ route('login') }}" 
+                       class="text-gray-700 font-medium text-sm hover:text-accent transition-all duration-300 hover:translate-x-1 flex items-center gap-2">
+                        <span>Acceso Clientes</span>
+                        <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </a>
+                    
+                    <a href="{{ route('quote.builder') }}" 
+                       class="bg-gradient-to-r from-accent to-accent-dark text-white px-6 py-2 rounded-md font-medium text-sm hover:shadow-lg hover:scale-105 transition-all duration-300 relative overflow-hidden group">
+                        <span class="relative z-10 flex items-center gap-2">
+                            Contactar
+                            <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </span>
+                        <span class="absolute inset-0 bg-gradient-to-r from-accent-light to-accent transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></span>
+                    </a>
+                </div>
+
+                <!-- Botón Menú Móvil con animación -->
+                <button id="mobileMenuButton" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-300" aria-label="Abrir menú">
+                    <svg class="w-6 h-6 text-gray-700 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
             </div>
-
-            <!-- Botón Menú Móvil -->
-            <button class="mobile-menu-button" id="mobileMenuButton" aria-label="Abrir menú">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 6h16M4 12h16M4 18h16"/>
-                </svg>
-            </button>
         </div>
 
-        <!-- Menú Móvil -->
-        <div class="mobile-menu" id="mobileMenu">
-            <a href="#servicios" class="mobile-nav-link">Servicios</a>
-            <a href="#clientes" class="mobile-nav-link">Clientes</a>
-            <a href="#resultados" class="mobile-nav-link">Resultados</a>
-            <a href="#testimonios" class="mobile-nav-link">Testimonios</a>
-            <a href="{{ route('login') }}" class="mobile-nav-link">Acceso Clientes</a>
-            <a href="{{ route('quote.builder') }}" class="mobile-nav-link">Contactar</a>
+        <!-- Menú Móvil con animación -->
+        <div id="mobileMenu" class="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200/50 shadow-xl transform -translate-y-2 opacity-0 transition-all duration-300 pointer-events-none">
+            <div class="container mx-auto px-4 py-4 flex flex-col gap-1">
+                @foreach([
+                    ['href' => '#servicios', 'text' => 'Servicios', 'icon' => 'M9 5l7 7-7 7'],
+                    ['href' => '#clientes', 'text' => 'Clientes', 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'],
+                    ['href' => '#resultados', 'text' => 'Resultados', 'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'],
+                    ['href' => '#testimonios', 'text' => 'Testimonios', 'icon' => 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z']
+                ] as $item)
+                <a href="{{ $item['href'] }}" 
+                   class="text-gray-700 font-medium py-3 px-4 rounded-lg hover:bg-gray-50 hover:text-accent transition-all duration-300 transform hover:translate-x-2 flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}"/>
+                    </svg>
+                    {{ $item['text'] }}
+                </a>
+                @endforeach
+                
+                <div class="pt-2 mt-2 border-t border-gray-200/50">
+                    <a href="{{ route('login') }}" 
+                       class="text-gray-700 font-medium py-3 px-4 rounded-lg hover:bg-gray-50 hover:text-accent transition-all duration-300 flex items-center gap-3 mb-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        Acceso Clientes
+                    </a>
+                    <a href="{{ route('quote.builder') }}" 
+                       class="bg-gradient-to-r from-accent to-accent-dark text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
+                        Contactar
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <!-- HERO SECTION -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <span class="hero-badge fade-up">Consultoría Especializada</span>
-                <h1 class="hero-title fade-up delay-100">
-                    Transformación digital basada en datos e inteligencia de mercado
+    <!-- HERO SECTION con gradiente animado -->
+    <section class="min-h-screen flex items-center hero-gradient pt-16 md:pt-24 relative overflow-hidden">
+        <!-- Elementos decorativos animados -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute -top-40 -right-40 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-float" style="animation-delay: 0s;"></div>
+            <div class="absolute top-60 -left-20 w-60 h-60 bg-accent/5 rounded-full blur-3xl animate-float" style="animation-delay: 1s;"></div>
+            <div class="absolute bottom-40 right-1/4 w-40 h-40 bg-accent/5 rounded-full blur-3xl animate-float" style="animation-delay: 2s;"></div>
+        </div>
+
+        <div class="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl">
+                <!-- Badge con animación de brillo -->
+                <span class="inline-block bg-white/80 backdrop-blur-sm text-accent px-4 py-2 rounded-full text-sm font-semibold tracking-wider uppercase mb-8 animate-slide-left shadow-sm">
+                    Consultoría Especializada
+                    <span class="inline-block ml-2 w-2 h-2 bg-accent rounded-full animate-pulse"></span>
+                </span>
+                
+                <!-- Título con efecto de revelado -->
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6 text-balance">
+                    <span class="animate-text-reveal inline-block bg-gradient-to-r from-gray-900 to-accent bg-clip-text text-transparent">
+                        Transformación digital basada en datos e inteligencia de mercado
+                    </span>
                 </h1>
-                <p class="hero-description fade-up delay-200">
+                
+                <!-- Descripción -->
+                <p class="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl animate-fade-up" style="animation-delay: 0.2s;">
                     Desarrollamos soluciones tecnológicas personalizadas que impulsan el crecimiento empresarial. 
                     Combinamos análisis de datos, desarrollo ágil y estrategias digitales para resultados medibles.
                 </p>
-                <div class="hero-actions fade-up delay-300">
-                    <a href="{{ route('quote.builder') }}" class="btn btn-primary">
-                        Iniciar Proyecto
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                
+                <!-- Botones con efectos mejorados -->
+                <div class="flex flex-col sm:flex-row gap-4 animate-fade-up" style="animation-delay: 0.4s;">
+                    <a href="{{ route('quote.builder') }}" 
+                       class="group bg-gradient-to-r from-accent to-accent-dark text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-3 text-center relative overflow-hidden">
+                        <span class="relative z-10">Iniciar Proyecto</span>
+                        <svg class="w-5 h-5 relative z-10 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
                         </svg>
+                        <div class="absolute inset-0 bg-gradient-to-r from-accent-light to-accent transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
                     </a>
-                    <a href="#servicios" class="btn btn-secondary">
-                        Ver Soluciones
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M19 9l-7 7-7-7"/>
+                    
+                    <a href="#servicios" 
+                       class="group bg-white/80 backdrop-blur-sm border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-3 text-center hover:border-accent hover:text-accent">
+                        <span>Ver Soluciones</span>
+                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </a>
                 </div>
@@ -862,164 +392,252 @@
         </div>
     </section>
 
-    <!-- SERVICIOS -->
-    <section class="section" id="servicios">
-        <div class="container">
-            <div class="section-header">
-                <span class="text-caption">Soluciones Especializadas</span>
-                <h2>Desarrollo de Software a Medida</h2>
-                <p class="text-lead">
+    <!-- SERVICIOS con animaciones escalonadas -->
+    <section id="servicios" class="py-16 md:py-24 bg-white relative overflow-hidden">
+        <!-- Fondo decorativo -->
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-gray-50/50 to-transparent"></div>
+        
+        <div class="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+            <!-- Header con animación -->
+            <div class="text-center max-w-3xl mx-auto mb-16 md:mb-20">
+                <div class="inline-flex items-center gap-2 text-accent font-semibold tracking-wider text-sm uppercase mb-4 animate-slide-left">
+                    <span class="w-8 h-0.5 bg-accent"></span>
+                    Soluciones Especializadas
+                    <span class="w-8 h-0.5 bg-accent"></span>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 animate-fade-up">
+                    Desarrollo de Software a Medida
+                </h2>
+                <p class="text-lg text-gray-600 animate-fade-up" style="animation-delay: 0.1s;">
                     Creamos soluciones tecnológicas que resuelven problemas específicos de negocio, 
                     optimizando procesos y maximizando la productividad.
                 </p>
             </div>
-            
-            <div class="services-grid">
-                <div class="service-card fade-up">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
+
+            <!-- Grid de Servicios con animación escalonada -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto stagger-child">
+                <!-- Servicio 1 -->
+                <div class="bg-white border border-gray-200 rounded-xl p-8 hover-lift hover-glow transition-smooth group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
+                            Aplicaciones Empresariales
+                        </h3>
+                        <p class="text-gray-600">
+                            Sistemas CRM, ERP y gestión interna desarrollados con las mejores prácticas de desarrollo y seguridad empresarial.
+                        </p>
                     </div>
-                    <h3>Aplicaciones Empresariales</h3>
-                    <p>Sistemas CRM, ERP y gestión interna desarrollados con las mejores prácticas de desarrollo y seguridad empresarial.</p>
                 </div>
-                
-                <div class="service-card fade-up delay-100">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
+
+                <!-- Servicio 2 -->
+                <div class="bg-white border border-gray-200 rounded-xl p-8 hover-lift hover-glow transition-smooth group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
+                            Plataformas Web
+                        </h3>
+                        <p class="text-gray-600">
+                            Desarrollo de aplicaciones web escalables con arquitecturas modernas y tecnologías de vanguardia.
+                        </p>
                     </div>
-                    <h3>Plataformas Web</h3>
-                    <p>Desarrollo de aplicaciones web escalables con arquitecturas modernas y tecnologías de vanguardia.</p>
                 </div>
-                
-                <div class="service-card fade-up delay-200">
-                    <div class="service-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
+
+                <!-- Servicio 3 -->
+                <div class="bg-white border border-gray-200 rounded-xl p-8 hover-lift hover-glow transition-smooth group relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
+                            Integración de Sistemas
+                        </h3>
+                        <p class="text-gray-600">
+                            Conexión segura entre aplicaciones existentes y nuevas soluciones, garantizando flujos de datos óptimos.
+                        </p>
                     </div>
-                    <h3>Integración de Sistemas</h3>
-                    <p>Conexión segura entre aplicaciones existentes y nuevas soluciones, garantizando flujos de datos óptimos.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- CLIENTES -->
-    <section class="section clients" id="clientes">
-        <div class="container">
-            <div class="section-header">
-                <span class="text-caption">Confianza Empresarial</span>
-                <h2>Empresas que Confían en Nosotros</h2>
-                <p class="text-lead">
+    <!-- CLIENTES con animación de aparición -->
+    <section id="clientes" class="py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+        <!-- Elemento decorativo -->
+        <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent"></div>
+        
+        <div class="container mx-auto px-4 md:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="inline-flex items-center gap-2 text-accent font-semibold tracking-wider text-sm uppercase mb-4 animate-slide-right">
+                    <span class="w-8 h-0.5 bg-accent"></span>
+                    Confianza Empresarial
+                    <span class="w-8 h-0.5 bg-accent"></span>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 animate-fade-up">
+                    Empresas que Confían en Nosotros
+                </h2>
+                <p class="text-lg text-gray-600 animate-fade-up" style="animation-delay: 0.1s;">
                     Colaboramos con organizaciones líderes que buscan innovación tecnológica y soluciones robustas.
                 </p>
             </div>
-            
-            <div class="clients-grid">
-                <div class="client-logo fade-up">
-                    <img src="/images/empresas/TESI.png" alt="TESI">
+
+            <!-- Grid de Clientes con animación de escala -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
+                @foreach(['TESI', 'Gisena', 'TESCHA', 'AMCID', 'EVOBIKE'] as $client)
+                <div class="bg-white border border-gray-200 rounded-xl p-6 flex items-center justify-center hover-lift hover-glow transition-smooth group animate-scale-in" 
+                     style="animation-delay: {{ $loop->index * 0.1 }}s">
+                    <img 
+                        src="/images/empresas/{{ $client }}.png" 
+                        alt="{{ $client }}" 
+                        class="h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110"
+                        loading="lazy"
+                    >
+                    <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-                <div class="client-logo fade-up delay-100">
-                    <img src="/images/empresas/Gisena.png" alt="Gisena">
-                </div>
-                <div class="client-logo fade-up delay-200">
-                    <img src="/images/empresas/TESCHA.png" alt="TESCHA">
-                </div>
-                <div class="client-logo fade-up delay-300">
-                    <img src="/images/empresas/AMCID.png" alt="AMCID">
-                </div>
-                <div class="client-logo fade-up">
-                    <img src="/images/empresas/EVOBIKE.png" alt="EVOBIKE">
-                </div>
+                @endforeach
             </div>
         </div>
     </section>
 
-    <!-- MÉTRICAS -->
-    <section class="section metrics" id="resultados">
-        <div class="container">
-            <div class="section-header">
-                <h2 style="color: var(--white);">Resultados Comprobados</h2>
-                <p class="text-lead" style="color: var(--gray-300);">
+    <!-- MÉTRICAS con animación de conteo -->
+    <section id="resultados" class="py-16 md:py-24 bg-gradient-to-br from-gray-900 to-accent-dark text-white relative overflow-hidden">
+        <!-- Elementos decorativos animados -->
+        <div class="absolute inset-0">
+            <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-white/5 rounded-full blur-3xl animate-float"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-48 h-48 bg-white/5 rounded-full blur-3xl animate-float" style="animation-delay: 1s;"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+            <!-- Header -->
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6 animate-slide-left">
+                    Resultados Comprobados
+                </h2>
+                <p class="text-lg text-gray-300 animate-slide-right">
                     Impacto tangible en el crecimiento y eficiencia de nuestros clientes
                 </p>
             </div>
-            
-            <div class="metrics-grid">
-                <div class="metric-item fade-up">
-                    <div class="metric-value">+95%</div>
-                    <div class="metric-label">Satisfacción Cliente</div>
+
+            <!-- Grid de Métricas con animación de conteo -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+                <!-- Métrica 1 -->
+                <div class="text-center animate-scale-in" style="animation-delay: 0s">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2" data-count="95" data-suffix="%">
+                        0%
+                    </div>
+                    <div class="text-sm text-gray-400 uppercase tracking-wider">Satisfacción Cliente</div>
                 </div>
-                <div class="metric-item fade-up delay-100">
-                    <div class="metric-value">+40%</div>
-                    <div class="metric-label">Eficiencia Operativa</div>
+
+                <!-- Métrica 2 -->
+                <div class="text-center animate-scale-in" style="animation-delay: 0.2s">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2" data-count="40" data-suffix="%">
+                        0%
+                    </div>
+                    <div class="text-sm text-gray-400 uppercase tracking-wider">Eficiencia Operativa</div>
                 </div>
-                <div class="metric-item fade-up delay-200">
-                    <div class="metric-value">150+</div>
-                    <div class="metric-label">Proyectos Entregados</div>
+
+                <!-- Métrica 3 -->
+                <div class="text-center animate-scale-in" style="animation-delay: 0.4s">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2" data-count="150" data-suffix="+">
+                        0+
+                    </div>
+                    <div class="text-sm text-gray-400 uppercase tracking-wider">Proyectos Entregados</div>
                 </div>
-                <div class="metric-item fade-up delay-300">
-                    <div class="metric-value">100%</div>
-                    <div class="metric-label">Cumplimiento de Plazos</div>
+
+                <!-- Métrica 4 -->
+                <div class="text-center animate-scale-in" style="animation-delay: 0.6s">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2" data-count="100" data-suffix="%">
+                        0%
+                    </div>
+                    <div class="text-sm text-gray-400 uppercase tracking-wider">Cumplimiento de Plazos</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- TESTIMONIOS -->
-    <section class="section" id="testimonios">
-        <div class="container">
-            <div class="section-header">
-                <span class="text-caption">Testimonios</span>
-                <h2>Lo que Dicen Nuestros Clientes</h2>
-                <p class="text-lead">
+    <!-- TESTIMONIOS con animación de flip -->
+    <section id="testimonios" class="py-16 md:py-24 bg-white relative overflow-hidden">
+        <div class="container mx-auto px-4 md:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="inline-flex items-center gap-2 text-accent font-semibold tracking-wider text-sm uppercase mb-4 animate-slide-left">
+                    <span class="w-8 h-0.5 bg-accent"></span>
+                    Testimonios
+                    <span class="w-8 h-0.5 bg-accent"></span>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 animate-fade-up">
+                    Lo que Dicen Nuestros Clientes
+                </h2>
+                <p class="text-lg text-gray-600 animate-fade-up" style="animation-delay: 0.1s;">
                     Experiencias reales de empresas que han transformado sus operaciones con nuestras soluciones
                 </p>
             </div>
-            
-            <div class="testimonials-grid">
-                <div class="testimonial-card fade-up">
-                    <p class="testimonial-text">
-                        El equipo de desarrollo entregó una solución que superó nuestras expectativas. 
-                        La plataforma ha optimizado nuestros procesos en un 60%.
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar"></div>
-                        <div class="author-info">
-                            <h4>Carlos Mendoza</h4>
-                            <p>Director TI - TESI</p>
+
+            <!-- Grid de Testimonios con animación 3D -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto stagger-child">
+                <!-- Testimonio 1 -->
+                <div class="bg-white border border-gray-200 rounded-xl p-8 hover-lift hover-glow transition-smooth group animate-scale-in" style="animation-delay: 0s">
+                    <div class="relative mb-6">
+                        <div class="text-6xl text-gray-200 absolute -top-4 -left-2">"</div>
+                        <p class="text-gray-600 italic relative z-10 group-hover:text-gray-800 transition-colors duration-300">
+                            El equipo de desarrollo entregó una solución que superó nuestras expectativas. 
+                            La plataforma ha optimizado nuestros procesos en un 60%.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full group-hover:scale-110 transition-transform duration-300"></div>
+                        <div class="group-hover:translate-x-2 transition-transform duration-300">
+                            <h4 class="font-bold text-gray-900">Carlos Mendoza</h4>
+                            <p class="text-sm text-gray-500">Director TI - TESI</p>
                         </div>
                     </div>
                 </div>
-                
-                <div class="testimonial-card fade-up delay-100">
-                    <p class="testimonial-text">
-                        Profesionalismo y calidad técnica excepcional. El sistema desarrollado 
-                        se integra perfectamente con nuestra infraestructura existente.
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar"></div>
-                        <div class="author-info">
-                            <h4>Ana Rodríguez</h4>
-                            <p>Gerente de Operaciones - Gisena</p>
+
+                <!-- Testimonio 2 -->
+                <div class="bg-white border border-gray-200 rounded-xl p-8 hover-lift hover-glow transition-smooth group animate-scale-in" style="animation-delay: 0.2s">
+                    <div class="relative mb-6">
+                        <div class="text-6xl text-gray-200 absolute -top-4 -left-2">"</div>
+                        <p class="text-gray-600 italic relative z-10 group-hover:text-gray-800 transition-colors duration-300">
+                            Profesionalismo y calidad técnica excepcional. El sistema desarrollado 
+                            se integra perfectamente con nuestra infraestructura existente.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full group-hover:scale-110 transition-transform duration-300"></div>
+                        <div class="group-hover:translate-x-2 transition-transform duration-300">
+                            <h4 class="font-bold text-gray-900">Ana Rodríguez</h4>
+                            <p class="text-sm text-gray-500">Gerente de Operaciones - Gisena</p>
                         </div>
                     </div>
                 </div>
-                
-                <div class="testimonial-card fade-up delay-200">
-                    <p class="testimonial-text">
-                        Implementación impecable y soporte continuo. Han sido un partner tecnológico 
-                        confiable para nuestro crecimiento digital.
-                    </p>
-                    <div class="testimonial-author">
-                        <div class="author-avatar"></div>
-                        <div class="author-info">
-                            <h4>Miguel Torres</h4>
-                            <p>CEO - EVOBIKE</p>
+
+                <!-- Testimonio 3 -->
+                <div class="bg-white border border-gray-200 rounded-xl p-8 hover-lift hover-glow transition-smooth group animate-scale-in" style="animation-delay: 0.4s">
+                    <div class="relative mb-6">
+                        <div class="text-6xl text-gray-200 absolute -top-4 -left-2">"</div>
+                        <p class="text-gray-600 italic relative z-10 group-hover:text-gray-800 transition-colors duration-300">
+                            Implementación impecable y soporte continuo. Han sido un partner tecnológico 
+                            confiable para nuestro crecimiento digital.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-gray-300 to-gray-400 rounded-full group-hover:scale-110 transition-transform duration-300"></div>
+                        <div class="group-hover:translate-x-2 transition-transform duration-300">
+                            <h4 class="font-bold text-gray-900">Miguel Torres</h4>
+                            <p class="text-sm text-gray-500">CEO - EVOBIKE</p>
                         </div>
                     </div>
                 </div>
@@ -1027,129 +645,263 @@
         </div>
     </section>
 
-    <!-- CTA -->
-    <section class="section cta">
-        <div class="container">
-            <div class="cta-content">
-                <h2 class="cta-title">¿Listo para Transformar su Negocio?</h2>
-                <p class="cta-description">
+    <!-- CTA con animación de pulso -->
+    <section class="py-16 md:py-24 bg-gradient-to-br from-gray-50 to-white relative overflow-hidden">
+        <!-- Elemento decorativo -->
+        <div class="absolute inset-0 bg-gradient-to-r from-accent/5 via-transparent to-accent/5 animate-gradient"></div>
+        
+        <div class="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 animate-fade-up">
+                    ¿Listo para Transformar su Negocio?
+                </h2>
+                <p class="text-lg text-gray-600 mb-10 animate-fade-up" style="animation-delay: 0.1s;">
                     Agenda una consulta técnica gratuita y descubre cómo podemos desarrollar la solución perfecta para sus necesidades.
                 </p>
-                <a href="{{ route('quote.builder') }}" class="btn btn-primary">
-                    Solicitar Consulta Técnica
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
+                <a href="{{ route('quote.builder') }}" 
+                   class="inline-block bg-gradient-to-r from-accent to-accent-dark text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 animate-glow relative overflow-hidden group">
+                    <span class="relative z-10">Solicitar Consulta Técnica</span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-accent-light to-accent transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-column">
-                    <h3>Digital Market Intelligence</h3>
-                    <div class="contact-info">
-                        <p>Desarrollo de software empresarial y consultoría tecnológica especializada.</p>
-                    </div>
+    <!-- FOOTER con animaciones sutiles -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="container mx-auto px-4 md:px-6 lg:px-8">
+            <!-- Grid Footer -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+                <!-- Columna 1 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6 animate-slide-left">Digital Market Intelligence</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed animate-fade-up" style="animation-delay: 0.1s">
+                        Desarrollo de software empresarial y consultoría tecnológica especializada.
+                    </p>
                 </div>
-                
-                <div class="footer-column">
-                    <h3>Servicios</h3>
-                    <ul class="footer-links">
-                        <li><a href="#servicios">Aplicaciones Empresariales</a></li>
-                        <li><a href="#servicios">Plataformas Web</a></li>
-                        <li><a href="#servicios">Integración de Sistemas</a></li>
+
+                <!-- Columna 2 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6 animate-slide-left" style="animation-delay: 0.2s">Servicios</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#servicios" class="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block">Aplicaciones Empresariales</a></li>
+                        <li><a href="#servicios" class="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block">Plataformas Web</a></li>
+                        <li><a href="#servicios" class="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block">Integración de Sistemas</a></li>
                     </ul>
                 </div>
-                
-                <div class="footer-column">
-                    <h3>Contacto</h3>
-                    <div class="contact-info">
-                        <p>contacto@dmi.mx</p>
-                        <p>+52 55 1234 5678</p>
-                        <p>Ciudad de México</p>
+
+                <!-- Columna 3 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6 animate-slide-left" style="animation-delay: 0.3s">Contacto</h3>
+                    <div class="text-gray-400 text-sm space-y-2">
+                        <p class="hover:text-white transition-colors duration-300 cursor-default">contacto@dmi.mx</p>
+                        <p class="hover:text-white transition-colors duration-300 cursor-default">+52 55 1234 5678</p>
+                        <p class="hover:text-white transition-colors duration-300 cursor-default">Ciudad de México</p>
                     </div>
                 </div>
-                
-                <div class="footer-column">
-                    <h3>Recursos</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Blog Técnico</a></li>
-                        <li><a href="#">Casos de Estudio</a></li>
-                        <li><a href="#">Documentación</a></li>
+
+                <!-- Columna 4 -->
+                <div>
+                    <h3 class="text-lg font-bold mb-6 animate-slide-left" style="animation-delay: 0.4s">Recursos</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block">Blog Técnico</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block">Casos de Estudio</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:translate-x-1 inline-block">Documentación</a></li>
                     </ul>
                 </div>
             </div>
-            
-            <div class="footer-bottom">
-                <div class="copyright">
+
+            <!-- Bottom -->
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-gray-500 text-sm text-center md:text-left animate-fade-up">
                     © {{ date('Y') }} Digital Market Intelligence. Todos los derechos reservados.
                 </div>
-                <div class="footer-social">
-                    <a href="#" class="social-link">LinkedIn</a>
-                    <a href="#" class="social-link">GitHub</a>
-                    <a href="#" class="social-link">Twitter</a>
+                <div class="flex gap-6 animate-fade-up" style="animation-delay: 0.1s">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:scale-110">LinkedIn</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:scale-110">GitHub</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-all duration-300 hover:scale-110">Twitter</a>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- SCRIPTS -->
+    <!-- JavaScript mejorado -->
     <script>
-        // Navbar scroll effect
+        // Navbar scroll effect mejorado
         const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
+        let lastScroll = 0;
+        let ticking = false;
+
+        const updateNavbar = () => {
+            const currentScroll = window.pageYOffset;
+            
+            // Añadir efectos al hacer scroll
+            if (currentScroll > 50) {
+                navbar.classList.add('shadow-lg', 'bg-white/95', 'backdrop-blur-sm');
+                navbar.style.backdropFilter = 'blur(8px)';
             } else {
-                navbar.classList.remove('scrolled');
+                navbar.classList.remove('shadow-lg', 'bg-white/95', 'backdrop-blur-sm');
+                navbar.style.backdropFilter = 'none';
+            }
+            
+            // Animación de hide/show con suavidad
+            if (window.innerWidth < 768 && currentScroll > 100) {
+                if (currentScroll > lastScroll) {
+                    navbar.style.transform = 'translateY(-100%)';
+                    navbar.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                } else {
+                    navbar.style.transform = 'translateY(0)';
+                    navbar.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                }
+            }
+            
+            lastScroll = currentScroll;
+            ticking = false;
+        };
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateNavbar);
+                ticking = true;
             }
         });
 
-        // Mobile menu toggle
+        // Mobile menu toggle mejorado
         const mobileMenuButton = document.getElementById('mobileMenuButton');
         const mobileMenu = document.getElementById('mobileMenu');
 
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('active');
+        const toggleMobileMenu = () => {
+            const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+            const svg = mobileMenuButton.querySelector('svg');
             
-            // Cambiar ícono del botón
-            const isOpen = mobileMenu.classList.contains('active');
-            mobileMenuButton.innerHTML = isOpen ? 
-                '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 18L18 6M6 6l12 12"/></svg>' :
-                '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+            if (!isExpanded) {
+                // Abrir menú
+                mobileMenuButton.setAttribute('aria-expanded', 'true');
+                mobileMenu.classList.remove('pointer-events-none');
+                mobileMenu.style.transform = 'translateY(0)';
+                mobileMenu.style.opacity = '1';
+                svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+                
+                // Animar elementos del menú
+                const menuItems = mobileMenu.querySelectorAll('a');
+                menuItems.forEach((item, index) => {
+                    item.style.transitionDelay = `${index * 50}ms`;
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                });
+            } else {
+                // Cerrar menú
+                mobileMenuButton.setAttribute('aria-expanded', 'false');
+                mobileMenu.style.transform = 'translateY(-10px)';
+                mobileMenu.style.opacity = '0';
+                setTimeout(() => {
+                    mobileMenu.classList.add('pointer-events-none');
+                }, 300);
+                svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>';
+            }
+        };
+
+        mobileMenuButton.addEventListener('click', toggleMobileMenu);
+
+        // Cerrar menú al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+                if (mobileMenuButton.getAttribute('aria-expanded') === 'true') {
+                    toggleMobileMenu();
+                }
+            }
         });
 
-        // Cerrar menú móvil al hacer clic en un enlace
-        mobileMenu.querySelectorAll('.mobile-nav-link').forEach(link => {
+        // Cerrar menú al hacer clic en enlace
+        mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
-                mobileMenu.classList.remove('active');
-                mobileMenuButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
+                if (mobileMenuButton.getAttribute('aria-expanded') === 'true') {
+                    toggleMobileMenu();
+                }
             });
         });
 
-        // Smooth scroll para enlaces internos
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                const href = this.getAttribute('href');
+        // Intersection Observer mejorado
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '50px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    
+                    // Para elementos con animación escalonada
+                    if (entry.target.classList.contains('stagger-child')) {
+                        const children = entry.target.children;
+                        Array.from(children).forEach((child, index) => {
+                            child.style.animationDelay = `${index * 100}ms`;
+                            child.style.animationPlayState = 'running';
+                        });
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observar todos los elementos animados
+        document.querySelectorAll('.animate-fade-up, .animate-slide-left, .animate-slide-right, .animate-scale-in, .stagger-child').forEach(el => {
+            el.style.animationPlayState = 'paused';
+            observer.observe(el);
+        });
+
+        // Contador animado para métricas
+        const animateCounters = () => {
+            const counters = document.querySelectorAll('[data-count]');
+            
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const suffix = counter.getAttribute('data-suffix') || '';
+                const duration = 1500; // ms
+                const step = target / (duration / 16); // 60fps
+                let current = 0;
                 
-                // Solo smooth scroll para enlaces internos que no sean "#"
-                if (href !== '#' && href.startsWith('#')) {
+                const updateCounter = () => {
+                    current += step;
+                    if (current < target) {
+                        counter.textContent = Math.floor(current) + suffix;
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target + suffix;
+                    }
+                };
+                
+                updateCounter();
+            });
+        };
+
+        // Observar sección de métricas para iniciar conteo
+        const metricsSection = document.getElementById('resultados');
+        const metricsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(animateCounters, 300); // Retraso para sincronizar con animación
+                }
+            });
+        }, { threshold: 0.5 });
+
+        if (metricsSection) {
+            metricsObserver.observe(metricsSection);
+        }
+
+        // Smooth scroll mejorado con easing
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
                     e.preventDefault();
                     const target = document.querySelector(href);
                     if (target) {
-                        // Cerrar menú móvil si está abierto
-                        if (mobileMenu.classList.contains('active')) {
-                            mobileMenu.classList.remove('active');
-                            mobileMenuButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>';
-                        }
+                        const offset = 80;
+                        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset;
                         
-                        // Smooth scroll
                         window.scrollTo({
-                            top: target.offsetTop - 80, // Ajuste para navbar fija
+                            top: targetPosition - offset,
                             behavior: 'smooth'
                         });
                     }
@@ -1157,50 +909,49 @@
             });
         });
 
-        // Intersection Observer para animaciones
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-up');
-                    observer.unobserve(entry.target);
-                }
+        // Efecto parallax para elementos de fondo
+        const parallaxElements = document.querySelectorAll('.parallax-bg');
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            parallaxElements.forEach(element => {
+                const rate = element.getAttribute('data-rate') || 0.5;
+                element.style.transform = `translateY(${scrolled * rate}px)`;
             });
-        }, observerOptions);
-
-        // Observar elementos para animación
-        document.querySelectorAll('.service-card, .client-logo, .metric-item, .testimonial-card').forEach(el => {
-            observer.observe(el);
         });
 
-        // Ajustar padding del hero para navbar fija
-        function adjustHeroPadding() {
-            const navbarHeight = navbar.offsetHeight;
-            const hero = document.querySelector('.hero');
-            if (hero) {
-                hero.style.paddingTop = `calc(${navbarHeight}px + ${getComputedStyle(hero).paddingTop})`;
-            }
-        }
-
-        // Ejecutar al cargar y redimensionar
-        window.addEventListener('load', adjustHeroPadding);
-        window.addEventListener('resize', adjustHeroPadding);
-        adjustHeroPadding();
-
-        // Clases iniciales para animaciones
+        // Inicializar animaciones al cargar
         document.addEventListener('DOMContentLoaded', () => {
-            // Añadir animación a elementos iniciales
-            const initialElements = document.querySelectorAll('.hero-badge, .hero-title, .hero-description, .hero-actions');
-            initialElements.forEach((el, index) => {
-                el.classList.add('fade-up');
-                el.style.animationDelay = `${index * 0.1}s`;
+            // Añadir delays escalonados a los elementos del menú móvil
+            const mobileMenuItems = mobileMenu.querySelectorAll('a');
+            mobileMenuItems.forEach((item, index) => {
+                item.style.transitionDelay = `${index * 50}ms`;
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-10px)';
             });
+
+            // Animación inicial para el hero
+            const heroTitle = document.querySelector('.hero-gradient h1');
+            if (heroTitle) {
+                heroTitle.style.animationDelay = '0s';
+            }
+        });
+
+        // Prevenir animaciones durante el resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            document.body.classList.add('resize-animation-stopper');
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                document.body.classList.remove('resize-animation-stopper');
+            }, 400);
         });
     </script>
 
+    <style>
+        .resize-animation-stopper * {
+            animation: none !important;
+            transition: none !important;
+        }
+    </style>
 </body>
 </html>
