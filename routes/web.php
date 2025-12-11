@@ -63,7 +63,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
 
-    Route::get('/cotizador', function () {
+    Route::get('/cotizadorb', function () {
         return view('cotizador.edit');
                 })->name('cotizador.edit');
 
