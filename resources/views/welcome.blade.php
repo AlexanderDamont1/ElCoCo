@@ -233,10 +233,9 @@
 
         /* Gradiente animado para el hero */
         .hero-gradient {
-            background: linear-gradient(-45deg, #f3f4f6, #ffffff, #f8fafc, #f1f5f9);
-            background-size: 400% 400%;
-            animation: gradientShift 8s ease infinite;
-        }
+    background: linear-gradient(135deg, #f3f4f6 0%, #ffffff 100%);
+    /* Eliminar animación del background */
+}
     </style>
 </head>
 
@@ -339,58 +338,63 @@
         </div>
     </nav>
 
-    <!-- HERO SECTION con gradiente animado -->
-    <section class="min-h-screen flex items-center hero-gradient pt-16 md:pt-24 relative overflow-hidden">
-        <!-- Elementos decorativos animados -->
-        <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute -top-40 -right-40 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-float" style="animation-delay: 0s;"></div>
-            <div class="absolute top-60 -left-20 w-60 h-60 bg-accent/5 rounded-full blur-3xl animate-float" style="animation-delay: 1s;"></div>
-            <div class="absolute bottom-40 right-1/4 w-40 h-40 bg-accent/5 rounded-full blur-3xl animate-float" style="animation-delay: 2s;"></div>
-        </div>
+<section class="min-h-[90vh] flex items-center hero-gradient pt-8 md:pt-16 relative overflow-hidden">
+    <!-- Elementos decorativos animados -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-float" style="animation-delay: 0s;"></div>
+        <div class="absolute top-60 -left-20 w-60 h-60 bg-accent/5 rounded-full blur-3xl animate-float" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-40 right-1/4 w-40 h-40 bg-accent/5 rounded-full blur-3xl animate-float" style="animation-delay: 2s;"></div>
+    </div>
 
-        <div class="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
-            <div class="max-w-3xl">
-                <!-- Badge con animación de brillo -->
-                <span class="inline-block bg-white/80 backdrop-blur-sm text-accent px-4 py-2 rounded-full text-sm font-semibold tracking-wider uppercase mb-8 animate-slide-left shadow-sm">
-                    Consultoría Especializada
-                    <span class="inline-block ml-2 w-2 h-2 bg-accent rounded-full animate-pulse"></span>
+    <!-- IMAGEN DE FONDO para el área azul -->
+    <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+        style="background-image: url('/images/juan.jpg');">
+        <div class="absolute inset-0 bg-gradient-to-r from-white/30 via-white/30 to-white/30"></div>
+    </div>
+
+    <div class="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+        <!-- 🔧 TEXTO MÁS ESTRECHO - AJUSTA AQUÍ -->
+        <div class="max-w-xl lg:max-w-3xl"> <!-- 👈 ESTO CONTROLA EL ANCHO DEL TEXTO -->
+        
+            <!-- Badge con animación de brillo -->
+            
+            
+            <!-- Título -->
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight mb-6">
+                <span class="animate-text-reveal inline-block bg-gradient-to-r from-black to-accent bg-clip-text text-transparent">
+                    Transformación digital basada en datos e inteligencia de mercado
                 </span>
+            </h1>
+            
+            <!-- Descripción -->
+            <p class="text-lg md:text-xl text-black mb-10 animate-fade-up" style="animation-delay: 0.2s;">
+                Desarrollamos soluciones tecnológicas personalizadas que impulsan el crecimiento empresarial. 
+                Combinamos análisis de datos, desarrollo ágil y estrategias digitales para resultados medibles.
+            </p>
+            
+            <!-- Botones -->
+            <div class="flex flex-col sm:flex-row gap-4 animate-fade-up" style="animation-delay: 0.4s;">
+                <a href="{{ route('quote.builder') }}" 
+                class="group bg-gradient-to-r from-accent to-accent-dark text-white px-10 py-5 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-3 text-center relative overflow-hidden">
+                    <span class="relative z-10 text-base">Iniciar Proyecto</span>
+                    <svg class="w-5 h-5 relative z-10 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                    <div class="absolute inset-0 bg-gradient-to-r from-accent-light to-accent transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
+                </a>
                 
-                <!-- Título con efecto de revelado -->
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6 text-balance">
-                    <span class="animate-text-reveal inline-block bg-gradient-to-r from-gray-900 to-accent bg-clip-text text-transparent">
-                        Transformación digital basada en datos e inteligencia de mercado
-                    </span>
-                </h1>
-                
-                <!-- Descripción -->
-                <p class="text-lg md:text-xl text-gray-600 mb-10 max-w-2xl animate-fade-up" style="animation-delay: 0.2s;">
-                    Desarrollamos soluciones tecnológicas personalizadas que impulsan el crecimiento empresarial. 
-                    Combinamos análisis de datos, desarrollo ágil y estrategias digitales para resultados medibles.
-                </p>
-                
-                <!-- Botones con efectos mejorados -->
-                <div class="flex flex-col sm:flex-row gap-4 animate-fade-up" style="animation-delay: 0.4s;">
-                    <a href="{{ route('quote.builder') }}" 
-                       class="group bg-gradient-to-r from-accent to-accent-dark text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-3 text-center relative overflow-hidden">
-                        <span class="relative z-10">Iniciar Proyecto</span>
-                        <svg class="w-5 h-5 relative z-10 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
-                        </svg>
-                        <div class="absolute inset-0 bg-gradient-to-r from-accent-light to-accent transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
-                    </a>
-                    
-                    <a href="#servicios" 
-                       class="group bg-white/80 backdrop-blur-sm border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-3 text-center hover:border-accent hover:text-accent">
-                        <span>Ver Soluciones</span>
-                        <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </a>
-                </div>
+                <a href="#servicios" 
+                class="group bg-white/80 backdrop-blur-sm border-2 border-gray-300 text-gray-700 px-10 py-5 rounded-lg font-semibold shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-3 text-center hover:border-accent hover:text-accent">
+                    <span class="text-base">Ver Soluciones</span>
+                    <svg class="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </a>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
 
     <!-- SERVICIOS con animaciones escalonadas -->
     <section id="servicios" class="py-16 md:py-24 bg-white relative overflow-hidden">
@@ -756,8 +760,7 @@
             <!-- Grid de Clientes con animación de escala -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
                 @foreach(['TESI', 'Gisena', 'TESCHA', 'AMCID', 'EVOBIKE'] as $client)
-                <div class="bg-white border border-gray-200 rounded-xl p-6 flex items-center justify-center hover-lift hover-glow transition-smooth group animate-scale-in" 
-                     style="animation-delay: {{ $loop->index * 0.1 }}s">
+                <div class="bg-white border border-gray-200 rounded-xl p-6 flex items-center justify-center hover-lift hover-glow transition-smooth group animate-scale-in" >
                     <img 
                         src="/images/empresas/{{ $client }}.png" 
                         alt="{{ $client }}" 
@@ -912,7 +915,7 @@
         <div class="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
             <div class="max-w-3xl mx-auto text-center">
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6 animate-fade-up">
-                    ¿Listo para Transformar su Negocio?
+                    ¿Listo para Transformar Tu Negocio?
                 </h2>
                 <p class="text-lg text-gray-600 mb-10 animate-fade-up" style="animation-delay: 0.1s;">
                     Agenda una consulta técnica gratuita y descubre cómo podemos desarrollar la solución perfecta para sus necesidades.
