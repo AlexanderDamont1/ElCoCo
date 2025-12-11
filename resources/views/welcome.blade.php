@@ -797,7 +797,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
                 <!-- Métrica 1 -->
                 <div class="text-center animate-scale-in" style="animation-delay: 0s">
-                    <div class="text-3xl md:text-4xl font-bold text-white mb-2" data-count="95" data-suffix="%">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2" data-count="75" data-suffix="%">
                         0%
                     </div>
                     <div class="text-sm text-gray-400 uppercase tracking-wider">Satisfacción Cliente</div>
@@ -813,7 +813,7 @@
 
                 <!-- Métrica 3 -->
                 <div class="text-center animate-scale-in" style="animation-delay: 0.4s">
-                    <div class="text-3xl md:text-4xl font-bold text-white mb-2" data-count="150" data-suffix="+">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2" data-count="132" data-suffix="+">
                         0+
                     </div>
                     <div class="text-sm text-gray-400 uppercase tracking-wider">Proyectos Entregados</div>
