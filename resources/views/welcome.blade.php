@@ -348,8 +348,8 @@
 
     <!-- IMAGEN DE FONDO para el área azul -->
     <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" 
-        style="background-image: url('/images/juan.jpg');">
-        <div class="absolute inset-0 bg-gradient-to-r from-white/30 via-white/30 to-white/30"></div>
+        style="background-image: url('/images/jun.jpg');">
+        <div class="absolute inset-0 bg-gradient-to-r from-white/70 via-white/50 to-white/40"></div>
     </div>
 
     <div class="container mx-auto px-4 md:px-6 lg:px-8 relative z-10">
