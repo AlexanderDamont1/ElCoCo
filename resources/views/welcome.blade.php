@@ -251,9 +251,9 @@
                         <img src="/images/DMI-logob.png" alt="DMI Logo" class="h-10 w-auto transition-transform duration-300 group-hover:scale-110">
                         <div class="absolute inset-0 bg-accent opacity-0 group-hover:opacity-10 rounded-lg transition-opacity duration-300"></div>
                     </div>
-                    <span class="text-xl font-bold text-gray-900 whitespace-nowrap transition-all duration-300 group-hover:text-accent">
+                   <!--  <span class="text-xl font-bold text-gray-900 whitespace-nowrap transition-all duration-300 group-hover:text-accent">
                         Digital Market Intelligence
-                    </span>
+                    </span> -->
                 </a>
 
                 <!-- Menú Desktop con efectos hover mejorados -->
@@ -416,60 +416,319 @@
 
             <!-- Grid de Servicios con animación escalonada -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto stagger-child">
-                <!-- Servicio 1 -->
-                <div class="bg-white border border-gray-200 rounded-xl p-8 hover-lift hover-glow transition-smooth group relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <!-- Servicio 1: Aplicaciones Empresariales -->
+            <div class="hover-lift bg-white border border-gray-200 rounded-xl p-8 hover-glow transition-smooth group relative overflow-hidden" role="article" aria-labelledby="servicio1-title">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative z-10">
+                    <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 id="servicio1-title" class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
+                        Aplicaciones Empresariales
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                        Sistemas CRM, ERP y gestión interna desarrollados con las mejores prácticas de desarrollo y seguridad empresarial.
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-gray-700">CRM personalizado (gestión de clientes)</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-gray-700">ERP modular (gestión integral)</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-gray-700">Sistemas de gestión interna</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-accent font-medium mt-3 pt-3 border-t border-gray-100">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            <span>Cumplimiento de normas de seguridad</span>
+                        </div>
+                    </div>
+                    <a href="#contacto" class="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-dark mt-6 group/link transition-colors duration-300">
+                        <span>Solicitar demostración</span>
+                        <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Servicio 2: Plataformas Web -->
+            <div class="hover-lift bg-white border border-gray-200 rounded-xl p-8 hover-glow transition-smooth group relative overflow-hidden" role="article" aria-labelledby="servicio2-title">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative z-10">
+                    <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 id="servicio2-title" class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
+                        Plataformas Web
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                        Desarrollo de aplicaciones web escalables con arquitecturas modernas, tecnologías de vanguardia y alto rendimiento.
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
+                            <span class="text-gray-700">Aplicaciones SPA/MPA de alto rendimiento</span>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
-                            Aplicaciones Empresariales
-                        </h3>
-                        <p class="text-gray-600">
-                            Sistemas CRM, ERP y gestión interna desarrollados con las mejores prácticas de desarrollo y seguridad empresarial.
-                        </p>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-gray-700">Plataformas E-commerce y Marketplaces</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-gray-700">Sistemas de gestión de contenido</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-accent font-medium mt-3 pt-3 border-t border-gray-100">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                            </svg>
+                            <span>Arquitecturas escalables (microservicios)</span>
+                        </div>
                     </div>
+                    <a href="#contacto" class="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-dark mt-6 group/link transition-colors duration-300">
+                        <span>Ver casos de éxito</span>
+                        <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </a>
                 </div>
+            </div>
 
-                <!-- Servicio 2 -->
-                <div class="bg-white border border-gray-200 rounded-xl p-8 hover-lift hover-glow transition-smooth group relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Servicio 3: Integración de Sistemas -->
+            <div class="hover-lift bg-white border border-gray-200 rounded-xl p-8 hover-glow transition-smooth group relative overflow-hidden" role="article" aria-labelledby="servicio3-title">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative z-10">
+                    <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                    </div>
+                    <h3 id="servicio3-title" class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
+                        Integración de Sistemas
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                        Conexión segura entre aplicaciones existentes y nuevas soluciones, garantizando flujos de datos óptimos y automatizados.
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
+                            <span class="text-gray-700">APIs REST/GraphQL personalizadas</span>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
-                            Plataformas Web
-                        </h3>
-                        <p class="text-gray-600">
-                            Desarrollo de aplicaciones web escalables con arquitecturas modernas y tecnologías de vanguardia.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Servicio 3 -->
-                <div class="bg-white border border-gray-200 rounded-xl p-8 hover-lift hover-glow transition-smooth group relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="relative z-10">
-                        <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
+                            <span class="text-gray-700">Middlewares y conectores empresariales</span>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
-                            Integración de Sistemas
-                        </h3>
-                        <p class="text-gray-600">
-                            Conexión segura entre aplicaciones existentes y nuevas soluciones, garantizando flujos de datos óptimos.
-                        </p>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            <span class="text-gray-700">Migración y sincronización de datos</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-accent font-medium mt-3 pt-3 border-t border-gray-100">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                            </svg>
+                            <span>Automatización de procesos (RPA)</span>
+                        </div>
+                    </div>
+                    <a href="#contacto" class="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-dark mt-6 group/link transition-colors duration-300">
+                        <span>Consultar integraciones</span>
+                        <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+                <!-- Servicio 4: Cursos Personalizados -->
+            <div class="hover-lift bg-white border border-gray-200 rounded-xl p-8 hover-glow transition-smooth group relative overflow-hidden" role="article" aria-labelledby="servicio4-title">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative z-10">
+                    <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                        </svg>
+                    </div>
+                    <h3 id="servicio4-title" class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
+                        Cursos Personalizados
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                        Capacitación especializada para equipos de trabajo. Mínimo 10 personas. Modalidad en línea o presencial en nuestras instalaciones.
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-gray-700">Ofimática avanzada (Word, Excel, PowerPoint)</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-gray-700">Mantenimiento de Hardware/Software</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="text-gray-700">Ciberseguridad básica para equipos</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-accent font-medium mt-3 pt-3 border-t border-gray-100">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Certificación incluida | Flexibilidad horaria</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-6">
+                        <a href="#contacto" class="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-dark group/link transition-colors duration-300">
+                            <span>Solicitar programa</span>
+                            <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                        <span class="text-xs font-medium px-3 py-1 bg-green-50 text-green-700 rounded-full">
+                            Desde 10 personas
+                        </span>
                     </div>
                 </div>
             </div>
+
+            <!-- Servicio 5: Mantenimiento Tecnológico -->
+            <div class="hover-lift bg-white border border-gray-200 rounded-xl p-8 hover-glow transition-smooth group relative overflow-hidden" role="article" aria-labelledby="servicio5-title">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative z-10">
+                    <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <h3 id="servicio5-title" class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
+                        Mantenimiento Tecnológico
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                        Servicio preventivo y correctivo para mantener tu infraestructura tecnológica operando al 100% con mínimas interrupciones.
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-gray-700">Mantenimiento Preventivo programado</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-gray-700">Mantenimiento Correctivo 24/7</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span class="text-gray-700">Soporte Técnico Remoto prioritario</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-accent font-medium mt-3 pt-3 border-t border-gray-100">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>Respuesta en menos de 2 horas</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-6">
+                        <a href="#contacto" class="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-dark group/link transition-colors duration-300">
+                            <span>Consultar planes</span>
+                            <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                        <span class="text-xs font-medium px-3 py-1 bg-blue-50 text-blue-700 rounded-full">
+                            Soporte 24/7
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Servicio 6: Consultoría IT -->
+            <div class="hover-lift bg-white border border-gray-200 rounded-xl p-8 hover-glow transition-smooth group relative overflow-hidden" role="article" aria-labelledby="servicio6-title">
+                <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative z-10">
+                    <div class="w-14 h-14 bg-gradient-to-br from-accent/10 to-accent/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <svg class="w-7 h-7 text-accent group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                    </div>
+                    <h3 id="servicio6-title" class="text-xl font-bold text-gray-900 mb-4 group-hover:text-accent transition-colors duration-300">
+                        Consultoría IT
+                    </h3>
+                    <p class="text-gray-600 mb-4">
+                        Asesoramiento especializado para optimizar tu infraestructura tecnológica, procesos digitales y maximizar ROI tecnológico.
+                    </p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            <span class="text-gray-700">Auditoría Tecnológica integral</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            <span class="text-gray-700">Estrategia Digital y Transformación</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <svg class="w-4 h-4 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            <span class="text-gray-700">Plan de Migración y Modernización</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm text-accent font-medium mt-3 pt-3 border-t border-gray-100">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            <span>Reporte detallado con roadmap</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-6">
+                        <a href="#contacto" class="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent-dark group/link transition-colors duration-300">
+                            <span>Agendar diagnóstico</span>
+                            <svg class="w-4 h-4 transform group-hover/link:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </section>
 
@@ -674,7 +933,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
                 <!-- Columna 1 -->
                 <div>
-                    <h3 class="text-lg font-bold mb-6 animate-slide-left">Digital Market Intelligence</h3>
+                    <!-- <h3 class="text-lg font-bold mb-6 animate-slide-left">Digital Market Intelligence</h3> -->
                     <p class="text-gray-400 text-sm leading-relaxed animate-fade-up" style="animation-delay: 0.1s">
                         Desarrollo de software empresarial y consultoría tecnológica especializada.
                     </p>
