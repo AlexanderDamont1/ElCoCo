@@ -25,7 +25,7 @@
                         <div class="col-md-6">
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0">Información básica</h6>
+                                    <h6 class="mb-0">Información básica hooa</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3">

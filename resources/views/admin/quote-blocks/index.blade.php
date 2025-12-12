@@ -58,7 +58,7 @@
                                 <td class="text-end">
 
                                     <a href="{{ route('admin.quote-blocks.edit', $block) }}" class="btn btn-sm btn-outline-secondary">
-                                        Editar
+                                        Editaaar
                                     </a>
 
                                     <form action="{{ route('admin.quote-blocks.destroy', $block) }}" method="POST" class="d-inline-block" onsubmit="return confirm('¿Eliminar?')">

@@ -1886,7 +1886,7 @@
             // Propiedades computadas
             get subtotal() {
                 return this.placedBlocks.reduce((total, block) => {
-                    return total + (block.subtotal || 0);
+                    return total + (block.totalPrice || 0);
                 }, 0);
             },
             
@@ -2071,6 +2071,7 @@
                     isDragging: false
                 };
                 
+                // Calcular precio inicial
                 this.updateBlockPrice(block);
                 this.placedBlocks.push(block);
                 this.saveToHistory();
@@ -2121,24 +2122,40 @@
                 return baseBlock;
             },
             
-            // Cálculos de precios
+            // Cálculos de precios - CORREGIDO
             updateBlockPrice(block) {
-                // 1. Intentar usar fórmula del bloque si existe
+                let subtotal = 0;
+                
                 if (block.formula) {
                     try {
-                        block.subtotal = this.evaluateFormula(block.formula, block);
+                        subtotal = this.evaluateFormula(block.formula, block);
                     } catch (error) {
                         console.warn('Error en fórmula, usando cálculo por defecto:', error);
-                        block.subtotal = this.calculateByType(block);
+                        subtotal = this.calculateByType(block);
                     }
                 } else {
-                    // 2. Si no hay fórmula, usar cálculo por tipo
-                    block.subtotal = this.calculateByType(block);
+                    subtotal = this.calculateByType(block);
                 }
                 
-                // 3. Calcular precio total con cantidad
-                block.totalPrice = (block.subtotal || 0) * block.quantity;
+                // Calcular precio por hora para mostrar en UI
+                const defaultHours = block.default_hours || 20;
+                block.pricePerHour = block.base_price / defaultHours;
+                
+                block.subtotal = subtotal;
+                block.totalPrice = subtotal * (block.quantity || 1);
+                
+                console.log('Precio actualizado:', {
+                    nombre: block.name,
+                    base: block.base_price,
+                    default_hours: defaultHours,
+                    horas_actuales: block.hours,
+                    precio_por_hora: block.pricePerHour,
+                    subtotal: block.subtotal,
+                    total: block.totalPrice
+                });
+                
                 this.saveToHistory();
+                return block.totalPrice;
             },
             
             calculateByType(block) {
@@ -2233,51 +2250,94 @@
                 return factors[level] || 1.0;
             },
             
-            // Cálculos tradicionales (backup si no hay fórmula)
+           
+           // Cálculos tradicionales (backup si no hay fórmula) - CORREGIDO
             calculateCoursePrice(block) {
-                const modalityPrices = { online: 0, onsite: 0.3, hybrid: 0.15 };
-                const difficultyPrices = { basic: 0, intermediate: 0.2, advanced: 0.4 };
+                const modalityPrices = { online: 0, onsite: 0.3, hybrid: 0.15 };// <-- Coregir para que los factotres esten en panel de admin
+                const difficultyPrices = { basic: 0, intermediate: 0.2, advanced: 0.4 };// <-- Coregir para que los factotres esten en panel de admin
                 
-                block.modalityPrice = block.base_price * (modalityPrices[block.modality] || 0);
-                block.difficultyPrice = block.base_price * (difficultyPrices[block.difficulty] || 0);
-                block.participantsPrice = Math.max(0, (block.participants - 10) * 500);
-                block.hoursPrice = Math.max(0, (block.hours - 20) * 300);
+                // Obtener horas por defecto del bloque (no usar 20 fijo)
+                const defaultHours = block.default_hours || 20;
+                const currentHours = block.hours || defaultHours;
                 
-                block.subtotal = block.base_price + block.modalityPrice + block.difficultyPrice + 
-                               block.participantsPrice + block.hoursPrice;
+                // Calcular precio por hora
+                const pricePerHour = block.base_price / defaultHours;
+                
+                const modalityPrice = block.base_price * (modalityPrices[block.modality] || 0);
+                const difficultyPrice = block.base_price * (difficultyPrices[block.difficulty] || 0);
+                const participantsPrice = Math.max(0, ((block.participants || 10) - 10) * 500);
+                
+                // Usar defaultHours del bloque en lugar de 20 fijo
+                const hoursPrice = Math.max(0, (currentHours - defaultHours) * pricePerHour * 1.5);
+                
+                return block.base_price + modalityPrice + difficultyPrice + participantsPrice + hoursPrice;
             },
-            
+
             calculateSoftwarePrice(block) {
-                const complexityFactors = { simple: 1.0, medium: 1.5, complex: 2.0 };
-                const integrationPrices = { none: 0, basic: 5000, advanced: 10000 };
+                const complexityFactors = { simple: 1.0, medium: 1.5, complex: 2.0 };// <-- Coregir para que los factotres esten en panel de admin
+                const integrationPrices = { none: 0, basic: 5000, advanced: 10000 };// <-- Coregir para que los factotres esten en panel de admin
+                
+                // Obtener horas por defecto del bloque (no usar 80 fijo)
+                const defaultHours = block.default_hours || 80;
+                const currentHours = block.hours || defaultHours;
+                
+                // Calcular precio por hora
+                const pricePerHour = block.base_price / defaultHours;
                 
                 const factor = complexityFactors[block.complexity] || 1.5;
-                block.complexityPrice = block.base_price * (factor - 1);
-                block.hoursPrice = Math.max(0, (block.hours - 80) * 800);
-                block.integrationsPrice = integrationPrices[block.integrations] || 0;
+                const complexityPrice = block.base_price * (factor - 1);
                 
-                block.subtotal = (block.base_price * factor) + block.hoursPrice + block.integrationsPrice;
+                // Usar defaultHours del bloque en lugar de 80 fijo
+                const hoursPrice = Math.max(0, (currentHours - defaultHours) * pricePerHour * 1.8);
+                const integrationsPrice = integrationPrices[block.integrations] || 0;
+                
+                return (block.base_price * factor) + hoursPrice + integrationsPrice;
             },
-            
+
             calculateAuditPrice(block) {
-                const scopeFactors = { basic: 0.7, standard: 1.0, comprehensive: 1.4 };
+                const scopeFactors = { basic: 0.7, standard: 1.0, comprehensive: 1.4 };// <-- Coregir para que los factotres esten en panel de admin
+                
+                // Obtener horas por defecto del bloque (no usar 40 fijo)
+                const defaultHours = block.default_hours || 40;
+                const currentHours = block.hours || defaultHours;
+                
+                // Calcular precio por hora
+                const pricePerHour = block.base_price / defaultHours;
                 
                 const factor = scopeFactors[block.scope] || 1.0;
-                block.scopePrice = block.base_price * (factor - 1);
-                block.systemsPrice = Math.max(0, (block.systems - 1) * 2000);
-                block.hoursPrice = Math.max(0, (block.hours - 40) * 500);
+                const scopePrice = block.base_price * (factor - 1);
+                const systemsPrice = Math.max(0, ((block.systems || 1) - 1) * 2000);
                 
-                block.subtotal = (block.base_price * factor) + block.systemsPrice + block.hoursPrice;
+                // Usar defaultHours del bloque en lugar de 40 fijo
+                const hoursPrice = Math.max(0, (currentHours - defaultHours) * pricePerHour * 1.6);
+                
+                return (block.base_price * factor) + systemsPrice + hoursPrice;
             },
-            
+
             calculateGenericPrice(block) {
-                const serviceLevelFactors = { basic: 0.8, standard: 1.0, premium: 1.3 };
+                const serviceLevelFactors = { basic: 0.8, standard: 1.0, premium: 1.3 };// <-- Coregir para que los factotres esten en panel de admin
+                
+                // Obtener horas por defecto del bloque (no usar 20 fijo)
+                const defaultHours = block.default_hours || 20;
+                const currentHours = block.hours || defaultHours;
+                
+                // Calcular precio por hora
+                const pricePerHour = block.base_price / defaultHours;
                 
                 const factor = serviceLevelFactors[block.service_level] || 1.0;
-                block.serviceLevelPrice = block.base_price * (factor - 1);
-                block.hoursPrice = Math.max(0, (block.hours - 20) * 400);
+                const serviceLevelPrice = block.base_price * (factor - 1);
                 
-                block.subtotal = (block.base_price * factor) + block.hoursPrice;
+                // Usar defaultHours del bloque en lugar de 20 fijo
+                const hoursPrice = Math.max(0, (currentHours - defaultHours) * pricePerHour * 1.5);
+                
+                return (block.base_price * factor) + hoursPrice;
+            },
+            
+            // Método para actualizar un parámetro y recalcular precio
+            updateBlockParameter(block, parameter, value) {
+                block[parameter] = value;
+                this.updateBlockPrice(block);
+                this.showToast(`${parameter} actualizado`, 'info');
             },
             
             // Gestión de bloques
@@ -2507,120 +2567,119 @@
             
             // Funciones de envío mejoradas
             async submitQuote() {
-    console.log('Iniciando submitQuote...');
-    console.log('Datos del cliente:', this.clientForm);
-    console.log('Bloques colocados:', this.placedBlocks.length);
-    
-    if (!this.clientForm.name || !this.clientForm.email) {
-        this.showToast('Completa los campos requeridos', 'error');
-        return;
-    }
-    
-    this.isSubmitting = true;
-    
-    try {
-        console.log('Preparando datos para enviar...');
-        
-        // Preparar datos para enviar
-        const quoteData = {
-            client: {
-                name: this.clientForm.name,
-                email: this.clientForm.email,
-                phone: this.clientForm.phone || '',
-                company: this.clientForm.company || '',
-                project_description: '',
-                additional_requirements: this.clientForm.notes || ''
-            },
-            blocks: this.placedBlocks.map(block => {
-                console.log('Procesando bloque:', block.name);
-                return {
-                    id: block.id,
-                    name: block.name,
-                    type: block.type,
-                    quantity: block.quantity || 1,
-                    hours: block.hours || block.default_hours || 20,
-                    base_price: block.base_price || 0,
-                    total_price: block.totalPrice || 0,
-                    totalPrice: block.totalPrice || 0, // mantener ambos por compatibilidad
-                    description: block.description || '',
-                    config: block.config || {},
-                    data: {
-                        modality: block.modality,
-                        difficulty: block.difficulty,
-                        participants: block.participants,
-                        complexity: block.complexity,
-                        integrations: block.integrations,
-                        scope: block.scope,
-                        systems: block.systems,
-                        service_level: block.service_level,
-                        frequency: block.frequency
+                console.log('Iniciando submitQuote...');
+                console.log('Datos del cliente:', this.clientForm);
+                console.log('Bloques colocados:', this.placedBlocks.length);
+                
+                if (!this.clientForm.name || !this.clientForm.email) {
+                    this.showToast('Completa los campos requeridos', 'error');
+                    return;
+                }
+                
+                this.isSubmitting = true;
+                
+                try {
+                    console.log('Preparando datos para enviar...');
+                    
+                    // Preparar datos para enviar
+                    const quoteData = {
+                        client: {
+                            name: this.clientForm.name,
+                            email: this.clientForm.email,
+                            phone: this.clientForm.phone || '',
+                            company: this.clientForm.company || '',
+                            additional_requirements: this.clientForm.notes || ''
+                        },
+                        blocks: this.placedBlocks.map(block => {
+                            console.log('Procesando bloque:', block.name);
+                            return {
+                                id: block.id,
+                                name: block.name,
+                                type: block.type,
+                                quantity: block.quantity || 1,
+                                hours: block.hours || block.default_hours || 20,
+                                base_price: block.base_price || 0,
+                                total_price: block.totalPrice || 0,
+                                totalPrice: block.totalPrice || 0, // mantener ambos por compatibilidad
+                                description: block.description || '',
+                                config: block.config || {},
+                                data: {
+                                    modality: block.modality,
+                                    difficulty: block.difficulty,
+                                    participants: block.participants,
+                                    complexity: block.complexity,
+                                    integrations: block.integrations,
+                                    scope: block.scope,
+                                    systems: block.systems,
+                                    service_level: block.service_level,
+                                    frequency: block.frequency
+                                }
+                            };
+                        }),
+                        summary: {
+                            subtotal: this.subtotal,
+                            tax: this.totalTax,
+                            total: this.totalCost,
+                            hours: this.totalHours
+                        }
+                    };
+                    
+                    console.log('Datos a enviar:', JSON.stringify(quoteData, null, 2));
+                    
+                    // Obtener token CSRF
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    console.log('CSRF Token:', csrfToken ? 'Presente' : 'Faltante');
+                    
+                    // Enviar a tu API Laravel
+                    console.log('Enviando a /api/quotes/submit...');
+                    const response = await fetch('/api/quotes/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify(quoteData)
+                    });
+                    
+                    console.log('Response status:', response.status);
+                    console.log('Response OK:', response.ok);
+                    
+                    const result = await response.json();
+                    console.log('Resultado del servidor:', result);
+                    
+                    if (!response.ok || !result.success) {
+                        throw new Error(result.message || 'Error al enviar la cotización');
                     }
-                };
-            }),
-            summary: {
-                subtotal: this.subtotal,
-                tax: this.totalTax,
-                total: this.totalCost,
-                hours: this.totalHours
-            }
-        };
-        
-        console.log('Datos a enviar:', JSON.stringify(quoteData, null, 2));
-        
-        // Obtener token CSRF
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        console.log('CSRF Token:', csrfToken ? 'Presente' : 'Faltante');
-        
-        // Enviar a tu API Laravel
-        console.log('Enviando a /api/quotes/submit...');
-        const response = await fetch('/api/quotes/submit', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': csrfToken
+                    
+                    // Actualizar con datos reales del servidor
+                    this.quoteReference = result.reference || this.quoteReference;
+                    this.pdfGenerated = true;
+                    
+                    // Mostrar éxito
+                    this.showSubmitModal = false;
+                    this.showSuccessModal = true;
+                    
+                    // Limpiar formulario
+                    this.clientForm = {
+                        name: '',
+                        email: '',
+                        phone: '',
+                        company: '',
+                        notes: ''
+                    };
+                    
+                    this.showToast(result.message || 'Cotización enviada exitosamente', 'success');
+                    
+                } catch (error) {
+                    console.error('Error completo en submitQuote:', error);
+                    console.error('Error stack:', error.stack);
+                    this.showToast(error.message || 'Error al enviar la cotización', 'error');
+                } finally {
+                    this.isSubmitting = false;
+                }
             },
-            body: JSON.stringify(quoteData)
-        });
-        
-        console.log('Response status:', response.status);
-        console.log('Response OK:', response.ok);
-        
-        const result = await response.json();
-        console.log('Resultado del servidor:', result);
-        
-        if (!response.ok || !result.success) {
-            throw new Error(result.message || 'Error al enviar la cotización');
-        }
-        
-        // Actualizar con datos reales del servidor
-        this.quoteReference = result.reference || this.quoteReference;
-        this.pdfGenerated = true;
-        
-        // Mostrar éxito
-        this.showSubmitModal = false;
-        this.showSuccessModal = true;
-        
-        // Limpiar formulario
-        this.clientForm = {
-            name: '',
-            email: '',
-            phone: '',
-            company: '',
-            notes: ''
-        };
-        
-        this.showToast(result.message || 'Cotización enviada exitosamente', 'success');
-        
-    } catch (error) {
-        console.error('Error completo en submitQuote:', error);
-        console.error('Error stack:', error.stack);
-        this.showToast(error.message || 'Error al enviar la cotización', 'error');
-    } finally {
-        this.isSubmitting = false;
-    }
-},
             
             saveQuoteToHistory() {
                 try {
@@ -2648,73 +2707,73 @@
             },
             
             async exportPDF() {
-    if (this.placedBlocks.length === 0) {
-        this.showToast('Agrega servicios primero', 'warning');
-        return;
-    }
-    
-    this.isExportingPDF = true;
-    
-    try {
-        // Primero guardar como borrador en la BD
-        await this.saveDraft();
-        
-        // Luego generar PDF
-        await this.generatePDF(false);
-        
-        this.showToast('PDF generado exitosamente', 'success');
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        this.showToast('Error al generar PDF', 'error');
-    } finally {
-        this.isExportingPDF = false;
-    }
-},
+                if (this.placedBlocks.length === 0) {
+                    this.showToast('Agrega servicios primero', 'warning');
+                    return;
+                }
+                
+                this.isExportingPDF = true;
+                
+                try {
+                    // Primero guardar como borrador en la BD
+                    await this.saveDraft();
+                    
+                    // Luego generar PDF
+                    await this.generatePDF(false);
+                    
+                    this.showToast('PDF generado exitosamente', 'success');
+                } catch (error) {
+                    console.error('Error generating PDF:', error);
+                    this.showToast('Error al generar PDF', 'error');
+                } finally {
+                    this.isExportingPDF = false;
+                }
+            },
 
-async saveDraft() {
-    // Solo guardar si hay datos de cliente
-    if (!this.clientForm.name && !this.clientForm.email) {
-        return; // No guardar si no hay datos mínimos
-    }
-    
-    try {
-        const quoteData = {
-            client: {
-                name: this.clientForm.name || 'Cliente no identificado',
-                email: this.clientForm.email || '',
-                phone: this.clientForm.phone || '',
-                company: this.clientForm.company || ''
+            async saveDraft() {
+                // Solo guardar si hay datos de cliente
+                if (!this.clientForm.name && !this.clientForm.email) {
+                    return; // No guardar si no hay datos mínimos
+                }
+                
+                try {
+                    const quoteData = {
+                        client: {
+                            name: this.clientForm.name || 'Cliente no identificado',
+                            email: this.clientForm.email || '',
+                            phone: this.clientForm.phone || '',
+                            company: this.clientForm.company || ''
+                        },
+                        blocks: this.placedBlocks.map(block => ({
+                            id: block.id,
+                            name: block.name,
+                            quantity: block.quantity,
+                            total_price: block.totalPrice
+                        })),
+                        summary: {
+                            total: this.totalCost
+                        }
+                    };
+                    
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    
+                    const response = await fetch('/api/quotes/save-draft', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify(quoteData)
+                    });
+                    
+                    if (!response.ok) {
+                        console.warn('Error saving draft:', await response.text());
+                    }
+                } catch (error) {
+                    console.warn('Error saving draft:', error);
+                }
             },
-            blocks: this.placedBlocks.map(block => ({
-                id: block.id,
-                name: block.name,
-                quantity: block.quantity,
-                total_price: block.totalPrice
-            })),
-            summary: {
-                total: this.totalCost
-            }
-        };
-        
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-        
-        const response = await fetch('/api/quotes/save-draft', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify(quoteData)
-        });
-        
-        if (!response.ok) {
-            console.warn('Error saving draft:', await response.text());
-        }
-    } catch (error) {
-        console.warn('Error saving draft:', error);
-    }
-},
             
             async generatePDF(silent = false) {
                 const { jsPDF } = window.jspdf;
@@ -2885,6 +2944,6 @@ async saveDraft() {
             }
         }
     }
-    </script>
+</script>
 </body>
 </html>

@@ -14,8 +14,8 @@ class QuoteBlock extends Model
         'base_price',
         'default_hours',
         'config',
-        'formula',
-        'validation_rules',
+       // 'formula',
+        //'validation_rules',
         'is_active',
         'order'
     ];

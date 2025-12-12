@@ -13,7 +13,7 @@ class Quote extends Model
         'client_email',
         'client_company',
         'client_phone',
-        'project_description',
+        //'project_description',
         'additional_requirements',
         'data',
         'subtotal',
