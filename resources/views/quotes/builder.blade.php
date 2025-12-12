@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Cotizador Profesional - {{ config('app.name', 'Digital Market Intelligence') }}</title>
     
     <!-- Fonts y estilos de la plantilla -->
@@ -1002,6 +1003,20 @@
         .flex-1 {
             flex: 1;
         }
+
+        .loading-spinner {
+            border: 2px solid var(--gray-200);
+            border-top: 2px solid var(--accent);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
@@ -1011,7 +1026,7 @@
         <div class="navbar-container">
             <a href="/" class="navbar-logo">
                 <img src="/images/DMI-logob.png" alt="DMI Logo">
-                <span>Cotizador DMI</span>
+                <span> DMI</span>
             </a>
             <a href="/" class="nav-button">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1116,6 +1131,22 @@
                 </div>
                 
                 <div class="sidebar-content">
+                    <!-- Estado de carga -->
+                    <div x-show="isLoadingBlocks" class="text-center py-8">
+                        <div class="loading-spinner mx-auto mb-2"></div>
+                        <p class="text-xs text-gray-500">Cargando servicios...</p>
+                    </div>
+
+                    <!-- Sin bloques -->
+                    <div x-show="!isLoadingBlocks && categories.length === 0" class="text-center py-8">
+                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-sm text-gray-600">No hay servicios disponibles</p>
+                        <p class="text-xs text-gray-400 mt-1">Crea bloques desde el panel de administración</p>
+                    </div>
+
+                    <!-- Categorías con bloques -->
                     <template x-for="category in categories" :key="category.id">
                         <div class="category-section">
                             <div 
@@ -1139,7 +1170,7 @@
                                 x-show="category.expanded"
                                 x-transition
                             >
-                                <template x-for="block in getBlocksByCategory(category.id)" :key="block.id">
+                                <template x-for="block in category.blocks" :key="block.id">
                                     <div 
                                         class="block-item-sidebar"
                                         :data-block-id="block.id"
@@ -1160,6 +1191,14 @@
                                         </div>
                                     </div>
                                 </template>
+                                
+                                <!-- Mensaje si categoría vacía -->
+                                <div 
+                                    x-show="category.blocks.length === 0"
+                                    class="text-center py-2 text-xs text-gray-400"
+                                >
+                                    No hay servicios en esta categoría
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -1298,7 +1337,7 @@
                                 </div>
                                 
                                 <div class="block-content">
-                                    <!-- Campos específicos por tipo de bloque -->
+                                    <!-- Usar configuración dinámica del bloque -->
                                     <template x-if="block.type === 'course'">
                                         <div class="space-y-2">
                                             <div class="field-group">
@@ -1478,8 +1517,8 @@
                                         </div>
                                     </template>
                                     
-                                    <!-- Bloques genéricos -->
-                                    <template x-if="['maintenance', 'consulting'].includes(block.type)">
+                                    <!-- Bloques genéricos (incluye section) -->
+                                    <template x-if="['maintenance', 'consulting', 'section', 'generic'].includes(block.type)">
                                         <div class="space-y-2">
                                             <div class="field-group">
                                                 <label class="field-label">Nivel</label>
@@ -1513,6 +1552,7 @@
                                                     <option value="one_time">Una vez</option>
                                                     <option value="monthly">Mensual</option>
                                                     <option value="quarterly">Trimestral</option>
+                                                    <option value="annual">Anual</option>
                                                 </select>
                                             </div>
                                             <div class="price-breakdown" x-show="block.subtotal > 0">
@@ -1817,6 +1857,7 @@
             blocks: [],
             placedBlocks: [],
             zoom: 1,
+            isLoadingBlocks: false,
             
             // UI State
             showSubmitModal: false,
@@ -1878,76 +1919,99 @@
                 this.saveToHistory();
             },
             
-            // Cargar bloques
-            loadBlocks() {
-                this.categories = [
-                    { id: 'courses', name: 'Cursos y Capacitación', expanded: true },
-                    { id: 'software', name: 'Desarrollo de Software', expanded: true },
-                    { id: 'audits', name: 'Auditorías', expanded: true },
-                    { id: 'maintenance', name: 'Mantenimiento', expanded: true },
-                    { id: 'consulting', name: 'Consultoría', expanded: true }
-                ];
+            // Cargar bloques desde API
+            async loadBlocks() {
+                this.isLoadingBlocks = true;
                 
-                this.blocks = [
-                    {
-                        id: 'course_basic',
-                        name: 'Curso Básico',
-                        description: 'Introducción especializada',
-                        type: 'course',
-                        category_id: 'courses',
-                        default_hours: 20,
-                        base_price: 10000
-                    },
-                    {
-                        id: 'course_advanced',
-                        name: 'Curso Avanzado',
-                        description: 'Capacitación experta',
-                        type: 'course',
-                        category_id: 'courses',
-                        default_hours: 40,
-                        base_price: 20000
-                    },
-                    {
-                        id: 'software_module',
-                        name: 'Módulo Software',
-                        description: 'Desarrollo personalizado',
-                        type: 'software_module',
-                        category_id: 'software',
-                        default_hours: 80,
-                        base_price: 40000
-                    },
-                    {
-                        id: 'security_audit',
-                        name: 'Auditoría Seguridad',
-                        description: 'Evaluación completa',
-                        type: 'audit',
-                        category_id: 'audits',
-                        default_hours: 40,
-                        base_price: 15000
-                    },
-                    {
-                        id: 'monthly_maintenance',
-                        name: 'Mantenimiento Mensual',
-                        description: 'Soporte continuo',
-                        type: 'maintenance',
-                        category_id: 'maintenance',
-                        default_hours: 20,
-                        base_price: 8000
-                    },
-                    {
-                        id: 'consulting_hours',
-                        name: 'Horas Consultoría',
-                        description: 'Asesoría especializada',
-                        type: 'consulting',
-                        category_id: 'consulting',
-                        default_hours: 10,
-                        base_price: 5000
+                try {
+                    console.log('Cargando bloques desde API...');
+                    
+                    // Obtener token CSRF
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    
+                    const response = await fetch('/api/quote-blocks', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Error HTTP: ${response.status}`);
                     }
-                ];
+                    
+                    const result = await response.json();
+                    
+                    if (!result.success) {
+                        throw new Error('Respuesta no exitosa del servidor');
+                    }
+                    
+                    // Asignar las categorías y bloques desde la API
+                    this.categories = result.categories || [];
+                    
+                    // Crear una lista plana de todos los bloques para fácil acceso
+                    this.blocks = this.categories.flatMap(category => 
+                        category.blocks.map(block => ({
+                            ...block,
+                            category_name: category.name
+                        }))
+                    );
+                    
+                    console.log(`Bloques cargados: ${this.blocks.length} bloques en ${this.categories.length} categorías`);
+                    
+                    // Mostrar mensaje si no hay bloques
+                    if (this.blocks.length === 0) {
+                        this.showToast('No hay servicios disponibles. Agrega bloques desde el panel de administración.', 'warning');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error cargando bloques desde API:', error);
+                    
+                    // Mostrar datos de ejemplo como fallback
+                    this.showToast('Error al cargar servicios. Mostrando datos de ejemplo.', 'error');
+                    
+                    this.loadFallbackBlocks();
+                } finally {
+                    this.isLoadingBlocks = false;
+                }
             },
             
+            // Método auxiliar para compatibilidad
             getBlocksByCategory(categoryId) {
-                return this.blocks.filter(block => block.category_id === categoryId);
+                const category = this.categories.find(c => c.id == categoryId);
+                return category ? category.blocks : [];
+            },
+            
+            loadFallbackBlocks() {
+                console.warn('Usando bloques de ejemplo (fallback)');
+                
+                this.categories = [
+                    { 
+                        id: 1, 
+                        name: 'Bloques de Ejemplo', 
+                        description: 'Se cargarán automáticamente los bloques que crees en el admin',
+                        expanded: true,
+                        blocks: [
+                            {
+                                id: 'example_1',
+                                name: 'Servicio de Ejemplo',
+                                description: 'Crea bloques en el panel de administración para verlos aquí',
+                                type: 'generic',
+                                category_id: 1,
+                                base_price: 5000,
+                                default_hours: 10,
+                                config: {},
+                                formula: null,
+                                order: 1
+                            }
+                        ]
+                    }
+                ];
+                
+                this.blocks = this.categories.flatMap(c => c.blocks);
             },
             
             toggleCategory(categoryId) {
@@ -2015,31 +2079,42 @@
             },
             
             initializeBlockData(blockData) {
-                const baseBlock = {
-                    ...blockData,
-                    quantity: 1,
-                    hours: blockData.default_hours || 20
-                };
+                // Crear una copia profunda del bloque base
+                const baseBlock = JSON.parse(JSON.stringify(blockData));
+                
+                // Propiedades básicas
+                baseBlock.quantity = 1;
+                baseBlock.hours = blockData.default_hours || 20;
+                baseBlock.zIndex = 10 + this.placedBlocks.length;
+                baseBlock.isDragging = false;
+                
+                // Inicializar configuraciones específicas desde blockData.config
+                const config = blockData.config || {};
                 
                 // Configuración por tipo
                 switch (blockData.type) {
                     case 'course':
-                        baseBlock.modality = 'online';
-                        baseBlock.difficulty = 'basic';
-                        baseBlock.participants = 10;
+                        baseBlock.modality = config.default_modality || 'online';
+                        baseBlock.difficulty = config.default_difficulty || 'basic';
+                        baseBlock.participants = config.default_participants || 10;
                         break;
+                        
                     case 'software_module':
-                        baseBlock.complexity = 'medium';
-                        baseBlock.integrations = 'none';
+                        baseBlock.complexity = config.default_complexity || 'medium';
+                        baseBlock.integrations = config.default_integrations || 'none';
                         break;
+                        
                     case 'audit':
-                        baseBlock.scope = 'standard';
-                        baseBlock.systems = 1;
+                        baseBlock.scope = config.default_scope || 'standard';
+                        baseBlock.systems = config.default_systems || 1;
                         break;
+                        
                     case 'maintenance':
                     case 'consulting':
-                        baseBlock.service_level = 'standard';
-                        baseBlock.frequency = 'monthly';
+                    case 'generic':
+                    case 'section':
+                        baseBlock.service_level = config.default_service_level || 'standard';
+                        baseBlock.frequency = config.default_frequency || 'monthly';
                         break;
                 }
                 
@@ -2048,24 +2123,117 @@
             
             // Cálculos de precios
             updateBlockPrice(block) {
-                switch (block.type) {
-                    case 'course':
-                        this.calculateCoursePrice(block);
-                        break;
-                    case 'software_module':
-                        this.calculateSoftwarePrice(block);
-                        break;
-                    case 'audit':
-                        this.calculateAuditPrice(block);
-                        break;
-                    default:
-                        this.calculateGenericPrice(block);
+                // 1. Intentar usar fórmula del bloque si existe
+                if (block.formula) {
+                    try {
+                        block.subtotal = this.evaluateFormula(block.formula, block);
+                    } catch (error) {
+                        console.warn('Error en fórmula, usando cálculo por defecto:', error);
+                        block.subtotal = this.calculateByType(block);
+                    }
+                } else {
+                    // 2. Si no hay fórmula, usar cálculo por tipo
+                    block.subtotal = this.calculateByType(block);
                 }
                 
+                // 3. Calcular precio total con cantidad
                 block.totalPrice = (block.subtotal || 0) * block.quantity;
                 this.saveToHistory();
             },
             
+            calculateByType(block) {
+                switch (block.type) {
+                    case 'course':
+                        return this.calculateCoursePrice(block);
+                    case 'software_module':
+                        return this.calculateSoftwarePrice(block);
+                    case 'audit':
+                        return this.calculateAuditPrice(block);
+                    default:
+                        return this.calculateGenericPrice(block);
+                }
+            },
+            
+            evaluateFormula(formula, block) {
+                try {
+                    if (!formula || formula.trim() === '') {
+                        return block.base_price || 0;
+                    }
+                    
+                    // Crear contexto con propiedades del bloque
+                    const context = {
+                        base_price: block.base_price || 0,
+                        quantity: block.quantity || 1,
+                        hours: block.hours || block.default_hours || 20,
+                        participants: block.participants || 1,
+                        systems: block.systems || 1,
+                        modality: this.getModalityFactor(block.modality),
+                        difficulty: this.getDifficultyFactor(block.difficulty),
+                        complexity: this.getComplexityFactor(block.complexity),
+                        scope: this.getScopeFactor(block.scope),
+                        service_level: this.getServiceLevelFactor(block.service_level)
+                    };
+                    
+                    // Agregar propiedades específicas del bloque
+                    for (const [key, value] of Object.entries(block)) {
+                        if (typeof value === 'number') {
+                            context[key] = value;
+                        }
+                    }
+                    
+                    // Reemplazar variables en la fórmula
+                    let processedFormula = formula;
+                    for (const [key, value] of Object.entries(context)) {
+                        const regex = new RegExp(`\\{${key}\\}`, 'g');
+                        processedFormula = processedFormula.replace(regex, value.toString());
+                    }
+                    
+                    // Evaluar expresión matemática segura
+                    // Solo permitir números, operadores matemáticos, paréntesis y espacios
+                    const mathExpression = processedFormula.replace(/[^0-9+\-*/().\s]/g, '');
+                    
+                    if (!mathExpression.trim()) {
+                        return block.base_price || 0;
+                    }
+                    
+                    // Evaluar usando Function constructor en modo estricto
+                    const result = Function('"use strict"; return (' + mathExpression + ')')();
+                    
+                    return isNaN(result) ? block.base_price || 0 : Number(result);
+                    
+                } catch (error) {
+                    console.error('Error evaluando fórmula:', error, 'Fórmula:', formula);
+                    return block.base_price || 0;
+                }
+            },
+            
+            // Factores para cálculos
+            getModalityFactor(modality) {
+                const factors = { online: 1.0, onsite: 1.3, hybrid: 1.15 };
+                return factors[modality] || 1.0;
+            },
+            
+            getDifficultyFactor(difficulty) {
+                const factors = { basic: 1.0, intermediate: 1.2, advanced: 1.4 };
+                return factors[difficulty] || 1.0;
+            },
+            
+            getComplexityFactor(complexity) {
+                const factors = { simple: 1.0, medium: 1.5, complex: 2.0 };
+                return factors[complexity] || 1.5;
+            },
+            
+            getScopeFactor(scope) {
+                const factors = { basic: 0.7, standard: 1.0, comprehensive: 1.4 };
+                return factors[scope] || 1.0;
+            },
+            
+            getServiceLevelFactor(level) {
+                const factors = { basic: 0.8, standard: 1.0, premium: 1.3 };
+                return factors[level] || 1.0;
+            },
+            
+            // Cálculos tradicionales (backup si no hay fórmula)
             calculateCoursePrice(block) {
                 const modalityPrices = { online: 0, onsite: 0.3, hybrid: 0.15 };
                 const difficultyPrices = { basic: 0, intermediate: 0.2, advanced: 0.4 };
@@ -2339,49 +2507,120 @@
             
             // Funciones de envío mejoradas
             async submitQuote() {
-                if (!this.clientForm.name || !this.clientForm.email) {
-                    this.showToast('Completa los campos requeridos', 'error');
-                    return;
-                }
-                
-                this.isSubmitting = true;
-                
-                try {
-                    // Generar PDF primero
-                    await this.generatePDF(true);
-                    
-                    // Simular envío exitoso
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    
-                    // Generar referencia única
-                    this.quoteReference = Date.now().toString().substr(-6);
-                    this.pdfGenerated = true;
-                    
-                    // Mostrar éxito
-                    this.showSubmitModal = false;
-                    this.showSuccessModal = true;
-                    
-                    // Limpiar formulario
-                    this.clientForm = {
-                        name: '',
-                        email: '',
-                        phone: '',
-                        company: '',
-                        notes: ''
-                    };
-                    
-                    // Guardar en localStorage para historial
-                    this.saveQuoteToHistory();
-                    
-                    this.showToast('Cotización enviada exitosamente', 'success');
-                    
-                } catch (error) {
-                    console.error('Error submitting quote:', error);
-                    this.showToast('Error al enviar la cotización', 'error');
-                } finally {
-                    this.isSubmitting = false;
-                }
+    console.log('Iniciando submitQuote...');
+    console.log('Datos del cliente:', this.clientForm);
+    console.log('Bloques colocados:', this.placedBlocks.length);
+    
+    if (!this.clientForm.name || !this.clientForm.email) {
+        this.showToast('Completa los campos requeridos', 'error');
+        return;
+    }
+    
+    this.isSubmitting = true;
+    
+    try {
+        console.log('Preparando datos para enviar...');
+        
+        // Preparar datos para enviar
+        const quoteData = {
+            client: {
+                name: this.clientForm.name,
+                email: this.clientForm.email,
+                phone: this.clientForm.phone || '',
+                company: this.clientForm.company || '',
+                project_description: '',
+                additional_requirements: this.clientForm.notes || ''
             },
+            blocks: this.placedBlocks.map(block => {
+                console.log('Procesando bloque:', block.name);
+                return {
+                    id: block.id,
+                    name: block.name,
+                    type: block.type,
+                    quantity: block.quantity || 1,
+                    hours: block.hours || block.default_hours || 20,
+                    base_price: block.base_price || 0,
+                    total_price: block.totalPrice || 0,
+                    totalPrice: block.totalPrice || 0, // mantener ambos por compatibilidad
+                    description: block.description || '',
+                    config: block.config || {},
+                    data: {
+                        modality: block.modality,
+                        difficulty: block.difficulty,
+                        participants: block.participants,
+                        complexity: block.complexity,
+                        integrations: block.integrations,
+                        scope: block.scope,
+                        systems: block.systems,
+                        service_level: block.service_level,
+                        frequency: block.frequency
+                    }
+                };
+            }),
+            summary: {
+                subtotal: this.subtotal,
+                tax: this.totalTax,
+                total: this.totalCost,
+                hours: this.totalHours
+            }
+        };
+        
+        console.log('Datos a enviar:', JSON.stringify(quoteData, null, 2));
+        
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        console.log('CSRF Token:', csrfToken ? 'Presente' : 'Faltante');
+        
+        // Enviar a tu API Laravel
+        console.log('Enviando a /api/quotes/submit...');
+        const response = await fetch('/api/quotes/submit', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify(quoteData)
+        });
+        
+        console.log('Response status:', response.status);
+        console.log('Response OK:', response.ok);
+        
+        const result = await response.json();
+        console.log('Resultado del servidor:', result);
+        
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Error al enviar la cotización');
+        }
+        
+        // Actualizar con datos reales del servidor
+        this.quoteReference = result.reference || this.quoteReference;
+        this.pdfGenerated = true;
+        
+        // Mostrar éxito
+        this.showSubmitModal = false;
+        this.showSuccessModal = true;
+        
+        // Limpiar formulario
+        this.clientForm = {
+            name: '',
+            email: '',
+            phone: '',
+            company: '',
+            notes: ''
+        };
+        
+        this.showToast(result.message || 'Cotización enviada exitosamente', 'success');
+        
+    } catch (error) {
+        console.error('Error completo en submitQuote:', error);
+        console.error('Error stack:', error.stack);
+        this.showToast(error.message || 'Error al enviar la cotización', 'error');
+    } finally {
+        this.isSubmitting = false;
+    }
+},
             
             saveQuoteToHistory() {
                 try {
@@ -2409,23 +2648,73 @@
             },
             
             async exportPDF() {
-                if (this.placedBlocks.length === 0) {
-                    this.showToast('Agrega servicios primero', 'warning');
-                    return;
-                }
-                
-                this.isExportingPDF = true;
-                
-                try {
-                    await this.generatePDF(false);
-                    this.showToast('PDF generado exitosamente', 'success');
-                } catch (error) {
-                    console.error('Error generating PDF:', error);
-                    this.showToast('Error al generar PDF', 'error');
-                } finally {
-                    this.isExportingPDF = false;
-                }
+    if (this.placedBlocks.length === 0) {
+        this.showToast('Agrega servicios primero', 'warning');
+        return;
+    }
+    
+    this.isExportingPDF = true;
+    
+    try {
+        // Primero guardar como borrador en la BD
+        await this.saveDraft();
+        
+        // Luego generar PDF
+        await this.generatePDF(false);
+        
+        this.showToast('PDF generado exitosamente', 'success');
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        this.showToast('Error al generar PDF', 'error');
+    } finally {
+        this.isExportingPDF = false;
+    }
+},
+
+async saveDraft() {
+    // Solo guardar si hay datos de cliente
+    if (!this.clientForm.name && !this.clientForm.email) {
+        return; // No guardar si no hay datos mínimos
+    }
+    
+    try {
+        const quoteData = {
+            client: {
+                name: this.clientForm.name || 'Cliente no identificado',
+                email: this.clientForm.email || '',
+                phone: this.clientForm.phone || '',
+                company: this.clientForm.company || ''
             },
+            blocks: this.placedBlocks.map(block => ({
+                id: block.id,
+                name: block.name,
+                quantity: block.quantity,
+                total_price: block.totalPrice
+            })),
+            summary: {
+                total: this.totalCost
+            }
+        };
+        
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        
+        const response = await fetch('/api/quotes/save-draft', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify(quoteData)
+        });
+        
+        if (!response.ok) {
+            console.warn('Error saving draft:', await response.text());
+        }
+    } catch (error) {
+        console.warn('Error saving draft:', error);
+    }
+},
             
             async generatePDF(silent = false) {
                 const { jsPDF } = window.jspdf;

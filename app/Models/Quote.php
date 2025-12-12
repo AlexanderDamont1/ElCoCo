@@ -43,6 +43,12 @@ class Quote extends Model
         });
     }
 
+    // AGREGAR ESTA RELACIÓN
+    public function items()
+    {
+        return $this->hasMany(QuoteItem::class);
+    }
+
     public function getPdfUrlAttribute()
     {
         return $this->pdf_path ? asset('storage/' . $this->pdf_path) : null;
