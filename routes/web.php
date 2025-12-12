@@ -68,10 +68,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 })->name('cotizador.edit');
 
     Route::get('/bloques', function () {
-        return view('bloques.edit');
-                })->name('bloques.edit');
+        return view('bloques.index');
+                })->name('bloques.index');
     
 
+    Route::resource('bloques', QuoteBlockController::class);
+    
+
+              
 
     /*
     |--------------------------------------------------------------------------
@@ -91,10 +95,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ->name('quote-blocks.reorder');
 
         // listado de cotizaciones admin
-        Route::get('quotes', function () {
-            $quotes = Quote::latest()->paginate(20);
-            return view('admin.quotes.index', compact('quotes'));
-        })->name('quotes.index');
+        // Route::get('quotes', function () {
+        //     $quotes = Quote::latest()->paginate(20);
+        //     return view('admin.quotes.index', compact('quotes'));
+        // })->name('quotes.index');
 
         Route::get('quotes/{quote}', function (Quote $quote) {
             return view('admin.quotes.show', compact('quote'));

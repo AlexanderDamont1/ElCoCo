@@ -15,7 +15,7 @@ class QuoteBlockController extends Controller
         $categories = QuoteBlockCategory::with('blocks')->ordered()->get();
         $blocks = QuoteBlock::with('category')->ordered()->get();
         
-        return view('admin.quote-blocks.index', compact('categories', 'blocks'));
+        return view('bloques.index', compact('categories', 'blocks'));
     }
 
     public function create()
@@ -56,14 +56,14 @@ class QuoteBlockController extends Controller
             'type' => $request->type,
             'base_price' => $request->base_price,
             'default_hours' => $request->default_hours,
-            'config' => $this->processConfig($request),
+            'config' => $this->processConfig($request),// Archivo JSON con configuraciones específicas por tipo
             'formula' => $request->formula,
             'validation_rules' => $this->processValidationRules($request),
             'order' => QuoteBlock::where('category_id', $request->category_id)->max('order') + 1,
             'is_active' => $request->has('is_active')
         ]);
 
-        return redirect()->route('admin.quote-blocks.index')
+        return redirect()->route('bloques.index')
             ->with('success', 'Bloque creado exitosamente');
     }
 
@@ -111,7 +111,7 @@ class QuoteBlockController extends Controller
             'is_active' => $request->has('is_active')
         ]);
 
-        return redirect()->route('admin.quote-blocks.index')
+        return redirect()->route('bloques.index')
             ->with('success', 'Bloque actualizado exitosamente');
     }
 
@@ -119,7 +119,7 @@ class QuoteBlockController extends Controller
     {
         $quoteBlock->delete();
         
-        return redirect()->route('admin.quote-blocks.index')
+        return redirect()->route('bloques.index')
             ->with('success', 'Bloque eliminado exitosamente');
     }
 
