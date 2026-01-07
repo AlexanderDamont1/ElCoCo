@@ -51,29 +51,22 @@ Route::prefix('/api')->group(function () {
 */
 
 Route::middleware(['auth', 'verified'])->group(function () {
-
+ 
     Route::get('/dashboard', fn()=>view('dashboard'))->name('dashboard');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])
-        ->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 
-    Route::patch('/profile', [ProfileController::class, 'update'])
-        ->name('profile.update');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::delete('/profile', [ProfileController::class, 'destroy'])
-        ->name('profile.destroy');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/cotizadorb', function () {
-        return view('cotizador.edit');
-                })->name('cotizador.edit');
+    Route::get('/cotizadorb', function () {return view('cotizador.edit');})->name('cotizador.edit');
 
-    Route::get('/bloques', function () {
-        return view('bloques.index');
-                })->name('bloques.index');
-    
+   Route::get('/bloques', [QuoteBlockController::class, 'index'])->name('bloques.index');
 
-    Route::resource('bloques', QuoteBlockController::class);
-    
+   Route::get('/bloques/{quoteBlock}/edit', [QuoteBlockController::class, 'edit'])->name('bloques.edit');
+
+   Route::put('/bloques/{quoteBlock}', [QuoteBlockController::class, 'update'])->name('bloques.update');
 
               
 
@@ -83,31 +76,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::prefix('admin')->name('admin.')->group(function () {
-
-        Route::get('/', fn()=>view('admin.dashboard'))
-            ->name('dashboard');
+ 
 
         // bloques de cotización
-        Route::resource('quote-blocks', QuoteBlockController::class);
-
-        Route::post('quote-blocks/reorder', [QuoteBlockController::class, 'reorder'])
-            ->name('quote-blocks.reorder');
-
-        // listado de cotizaciones admin
-        // Route::get('quotes', function () {
-        //     $quotes = Quote::latest()->paginate(20);
-        //     return view('admin.quotes.index', compact('quotes'));
-        // })->name('quotes.index');
-
-        Route::get('quotes/{quote}', function (Quote $quote) {
-            return view('admin.quotes.show', compact('quote'));
-        })->name('quotes.show');
-
-        Route::get('categories', function () {
-            $categories = \App\Models\QuoteBlockCategory::withCount('blocks')->get();
-            return view('admin.categories.index', compact('categories'));
-        })->name('categories.index');
+        
+Route::prefix('admin')->name('admin.')->group(function () {
+       
     });
 });
 

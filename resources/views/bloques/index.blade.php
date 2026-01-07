@@ -5,8 +5,8 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-2xl font-bold text-gray-900">Bloques de Cotización</h1>
-                        <a href="{{ route('admin.quote-blocks.create') }}" 
+                        <h1 class="text-2xl font-bold text-gray-900">Bloques de Cotizacióoon</h1>
+                        <a href="#" 
                            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
                             + Nuevo Bloque
                         </a>
@@ -79,11 +79,11 @@
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                         <div class="flex justify-end space-x-2">
-                                                            <a href="{{ route('admin.quote-blocks.edit', $block) }}" 
+                                                            <a href="{{ route('bloques.edit', $block) }}" 
                                                                class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                                                                 Editar
                                                             </a>
-                                                            <form action="{{ route('admin.quote-blocks.destroy', $block) }}" 
+                                                            <form action="#" 
                                                                   method="POST" 
                                                                   class="inline"
                                                                   onsubmit="return confirm('¿Estás seguro de eliminar este bloque?')">

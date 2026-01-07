@@ -78,12 +78,12 @@ class QuoteBlockController extends Controller
             'section' => 'Sección',
             'generic' => 'Genérico'
         ];
-        
-        return view('admin.quote-blocks.form', compact('quoteBlock', 'categories', 'blockTypes'));
+        return view('bloques.edit', compact('quoteBlock', 'categories', 'blockTypes'));
     }
 
     public function update(Request $request, QuoteBlock $quoteBlock)
     {
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:quote_block_categories,id',
