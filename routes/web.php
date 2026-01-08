@@ -67,9 +67,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
    Route::get('/bloques/{quoteBlock}/edit', [QuoteBlockController::class, 'edit'])->name('bloques.edit');
 
    Route::put('/bloques/{quoteBlock}', [QuoteBlockController::class, 'update'])->name('bloques.update');
-
-              
-
+   
+   
+   
+   Route::get('/admin/cotizaciones', [QuoteController::class, 'index']) ->name('admin.quotes.index');
+   
+   Route::get('/admin/cotizaciones/{quote}', [QuoteController::class, 'show'])->name('admin.quotes.show');
+        
+   Route::patch('/admin/cotizaciones/{quote}/status', [QuoteController::class, 'updateStatus'])->name('admin.quotes.status');
     /*
     |--------------------------------------------------------------------------
     | ADMIN
@@ -81,7 +86,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // bloques de cotización
         
 Route::prefix('admin')->name('admin.')->group(function () {
-       
+
+     
     });
 });
 

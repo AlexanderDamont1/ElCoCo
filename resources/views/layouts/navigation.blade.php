@@ -18,7 +18,7 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('cotizador.edit')" :active="request()->routeIs('cotizador.edit')">
+                    <x-nav-link :href="route('admin.quotes.index')" :active="request()->routeIs('admin.quotes.index')">
                         {{ __('Cotizaciones') }}
                     </x-nav-link>
                 </div>

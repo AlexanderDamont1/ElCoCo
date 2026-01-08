@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\QuoteBlockCategory;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class QuoteController extends Controller
 {
@@ -171,6 +173,42 @@ public function builder()
             'message' => 'Export functionality pending'
         ]);
     }
+
+    public function index(Request $request)
+{
+    $query = Quote::query();
+
+    // 🔍 Filtro por estado (opcional pero sabroso)
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // 🔎 Búsqueda por cliente o referencia
+    if ($request->filled('q')) {
+        $q = $request->q;
+        $query->where(function($sub) use ($q) {
+            $sub->where('client_name', 'like', "%$q%")
+                ->orWhere('client_email', 'like', "%$q%")
+                ->orWhere('reference', 'like', "%$q%");
+        });
+    }
+
+    $quotes = $query
+        ->withCount('items')
+        ->orderByDesc('created_at')
+        ->paginate(15)
+        ->withQueryString();
+
+    return view('admin.quotes.index', compact('quotes'));
+}
+public function show(Quote $quote)
+{
+    $quote->load([
+        'items.block',
+    ]);
+
+    return view('admin.quotes.show', compact('quote'));
+}
 
     public function submit(Request $request)
     {
