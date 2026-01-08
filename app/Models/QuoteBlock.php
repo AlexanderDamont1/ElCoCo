@@ -22,7 +22,6 @@ class QuoteBlock extends Model
 
     protected $casts = [
         'config' => 'array',
-        'validation_rules' => 'array',
         'is_active' => 'boolean',
         'base_price' => 'decimal:2',
         'default_hours' => 'integer'

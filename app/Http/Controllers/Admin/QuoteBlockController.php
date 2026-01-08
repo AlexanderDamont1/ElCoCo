@@ -56,9 +56,7 @@ class QuoteBlockController extends Controller
             'type' => $request->type,
             'base_price' => $request->base_price,
             'default_hours' => $request->default_hours,
-            'config' => $this->processConfig($request),// Archivo JSON con configuraciones específicas por tipo
-            'formula' => $request->formula,
-            'validation_rules' => $this->processValidationRules($request),
+            'config' => $this->processConfig($request->input('extras')),// Archivo JSON con configuraciones específicas por tipo
             'order' => QuoteBlock::where('category_id', $request->category_id)->max('order') + 1,
             'is_active' => $request->has('is_active')
         ]);
@@ -84,10 +82,11 @@ class QuoteBlockController extends Controller
     public function update(Request $request, QuoteBlock $quoteBlock)
     {
 
+        $config = $this->processConfig($request->input('extras'));
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:quote_block_categories,id',
-            'type' => 'required|in:course,audit,maintenance,software_module,section,generic',
             'base_price' => 'required|numeric|min:0',
             'default_hours' => 'required|integer|min:0'
         ]);
@@ -102,12 +101,9 @@ class QuoteBlockController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'category_id' => $request->category_id,
-            'type' => $request->type,
             'base_price' => $request->base_price,
             'default_hours' => $request->default_hours,
-            'config' => $this->processConfig($request),
-            'formula' => $request->formula,
-            'validation_rules' => $this->processValidationRules($request),
+            'config' => $config,
             'is_active' => $request->has('is_active')
         ]);
 
@@ -138,69 +134,37 @@ class QuoteBlockController extends Controller
         return response()->json(['success' => true]);
     }
 
-    private function processConfig(Request $request)
-    {
-        $config = [];
-        
-        switch ($request->type) {
-            case 'course':
-                $config = [
-                    'modality' => [
-                        'online' => ['surcharge' => 0, 'label' => 'En línea'],
-                        'onsite' => ['surcharge' => 2000, 'label' => 'En instalaciones']
-                    ],
-                    'min_participants' => $request->min_participants ?? 10,
-                    'price_per_participant' => $request->price_per_participant ?? 500
-                ];
-                break;
-                
-            case 'software_module':
-                $config = [
-                    'complexity_levels' => [
-                        'low' => ['factor' => 0.8, 'label' => 'Baja'],
-                        'medium' => ['factor' => 1.0, 'label' => 'Media'],
-                        'high' => ['factor' => 1.5, 'label' => 'Alta']
-                    ],
-                    'integration_hours' => $request->integration_hours ?? 20,
-                    'hourly_rate' => $request->hourly_rate ?? 500
-                ];
-                break;
-                
-            case 'audit':
-                $config = [
-                    'scope_levels' => [
-                        'basic' => ['factor' => 0.7, 'label' => 'Básica'],
-                        'standard' => ['factor' => 1.0, 'label' => 'Estándar'],
-                        'comprehensive' => ['factor' => 1.5, 'label' => 'Integral']
-                    ],
-                    'cost_per_system' => $request->cost_per_system ?? 1000
-                ];
-                break;
-        }
-        
-        return $config;
+   
+   private function processConfig(?array $extras): array
+{
+    if (!$extras) {
+        return [];
     }
 
-    private function processValidationRules(Request $request)
-    {
-        $rules = [];
-        
-        switch ($request->type) {
-            case 'course':
-                $rules = [
-                    'participants' => 'required|integer|min:10',
-                    'modality' => 'required|in:online,onsite'
-                ];
-                break;
-                
-            case 'software_module':
-                $rules = [
-                    'complexity' => 'required|in:low,medium,high',
-                    'estimated_hours' => 'required|integer|min:1'
-                ];
-                break;
+    $config = [];
+
+    foreach ($extras as $item) {
+        if (
+            empty($item['key']) ||
+            !array_key_exists('value', $item)
+        ) {
+            continue;
         }
-        
-        return $rules;
+
+        $key = $item['key'];
+        $value = $item['value'];
+
+        // Si es número, se guarda sin comillas
+        if (is_numeric($value)) {
+            $value = $value + 0;
+        }
+
+        $config[] = [
+            $key => $value
+        ];
     }
+
+    return $config;
+}
+
 }

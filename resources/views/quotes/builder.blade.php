@@ -1335,243 +1335,26 @@
                                         </button>
                                     </div>
                                 </div>
-                                
+<div x-show="block.config && Array.isArray(block.config) && block.config.length > 0" 
+     class="flex flex-wrap gap-2 mt-3 px-4">
+    <template x-for="(item, index) in block.config" :key="index">
+        <template x-for="(value, key) in item" :key="key">
+            <div class="group relative">
+                <div class="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg blur opacity-20 group-hover:opacity-30 transition duration-200"></div>
+                <div class="relative flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-gray-200 group-hover:border-blue-300 transition-colors">
+                    <span class="text-xs font-medium text-gray-600 min-w-[60px]" x-text="key"></span>
+                    <div class="w-px h-3 bg-gray-300"></div>
+                    <span class="text-sm font-semibold text-gray-900"
+                          x-text="Array.isArray(value) ? value.join(', ') : value">
+                    </span>
+                </div>
+            </div>
+        </template>
+    </template>
+</div>
+
                                 <div class="block-content">
-                                    <!-- Usar configuración dinámica del bloque -->
-                                    <template x-if="block.type === 'course'">
-                                        <div class="space-y-2">
-                                            <div class="field-group">
-                                                <label class="field-label">Modalidad</label>
-                                                <select 
-                                                    x-model="block.modality"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-select"
-                                                >
-                                                    <option value="online">En línea</option>
-                                                    <option value="onsite">Presencial</option>
-                                                    <option value="hybrid">Híbrido</option>
-                                                </select>
-                                            </div>
-                                            <div class="field-group">
-                                                <label class="field-label">Dificultad</label>
-                                                <select 
-                                                    x-model="block.difficulty"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-select"
-                                                >
-                                                    <option value="basic">Básico</option>
-                                                    <option value="intermediate">Intermedio</option>
-                                                    <option value="advanced">Avanzado</option>
-                                                </select>
-                                            </div>
-                                            <div class="field-group">
-                                                <label class="field-label">Participantes</label>
-                                                <input 
-                                                    type="number" 
-                                                    x-model="block.participants"
-                                                    min="1"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-input"
-                                                />
-                                            </div>
-                                            <div class="field-group">
-                                                <label class="field-label">Horas</label>
-                                                <input 
-                                                    type="number" 
-                                                    x-model="block.hours"
-                                                    min="1"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-input"
-                                                />
-                                            </div>
-                                            <div class="price-breakdown" x-show="block.subtotal > 0">
-                                                <div class="breakdown-row">
-                                                    <span>Base:</span>
-                                                    <span x-text="formatCurrency(block.base_price)"></span>
-                                                </div>
-                                                <div class="breakdown-row">
-                                                    <span>Modalidad:</span>
-                                                    <span x-text="formatCurrency(block.modalityPrice)"></span>
-                                                </div>
-                                                <div class="breakdown-row">
-                                                    <span>Dificultad:</span>
-                                                    <span x-text="formatCurrency(block.difficultyPrice)"></span>
-                                                </div>
-                                                <div class="breakdown-row total">
-                                                    <span>Subtotal:</span>
-                                                    <span x-text="formatCurrency(block.subtotal)"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </template>
-                                    
-                                    <template x-if="block.type === 'software_module'">
-                                        <div class="space-y-2">
-                                            <div class="field-group">
-                                                <label class="field-label">Complejidad</label>
-                                                <select 
-                                                    x-model="block.complexity"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-select"
-                                                >
-                                                    <option value="simple">Simple</option>
-                                                    <option value="medium">Media</option>
-                                                    <option value="complex">Compleja</option>
-                                                </select>
-                                            </div>
-                                            <div class="field-group">
-                                                <label class="field-label">Horas</label>
-                                                <input 
-                                                    type="number" 
-                                                    x-model="block.hours"
-                                                    min="1"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-input"
-                                                />
-                                            </div>
-                                            <div class="field-group">
-                                                <label class="field-label">Integraciones</label>
-                                                <select 
-                                                    x-model="block.integrations"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-select"
-                                                >
-                                                    <option value="none">Ninguna</option>
-                                                    <option value="basic">Básicas</option>
-                                                    <option value="advanced">Avanzadas</option>
-                                                </select>
-                                            </div>
-                                            <div class="price-breakdown" x-show="block.subtotal > 0">
-                                                <div class="breakdown-row">
-                                                    <span>Base:</span>
-                                                    <span x-text="formatCurrency(block.base_price)"></span>
-                                                </div>
-                                                <div class="breakdown-row">
-                                                    <span>Complejidad:</span>
-                                                    <span x-text="formatCurrency(block.complexityPrice)"></span>
-                                                </div>
-                                                <div class="breakdown-row">
-                                                    <span>Horas extra:</span>
-                                                    <span x-text="formatCurrency(block.hoursPrice)"></span>
-                                                </div>
-                                                <div class="breakdown-row total">
-                                                    <span>Subtotal:</span>
-                                                    <span x-text="formatCurrency(block.subtotal)"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </template>
-                                    
-                                    <template x-if="block.type === 'audit'">
-                                        <div class="space-y-2">
-                                            <div class="field-group">
-                                                <label class="field-label">Alcance</label>
-                                                <select 
-                                                    x-model="block.scope"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-select"
-                                                >
-                                                    <option value="basic">Básico</option>
-                                                    <option value="standard">Estándar</option>
-                                                    <option value="comprehensive">Completo</option>
-                                                </select>
-                                            </div>
-                                            <div class="field-group">
-                                                <label class="field-label">Sistemas</label>
-                                                <input 
-                                                    type="number" 
-                                                    x-model="block.systems"
-                                                    min="1"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-input"
-                                                />
-                                            </div>
-                                            <div class="field-group">
-                                                <label class="field-label">Horas</label>
-                                                <input 
-                                                    type="number" 
-                                                    x-model="block.hours"
-                                                    min="1"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-input"
-                                                />
-                                            </div>
-                                            <div class="price-breakdown" x-show="block.subtotal > 0">
-                                                <div class="breakdown-row">
-                                                    <span>Base:</span>
-                                                    <span x-text="formatCurrency(block.base_price)"></span>
-                                                </div>
-                                                <div class="breakdown-row">
-                                                    <span>Alcance:</span>
-                                                    <span x-text="formatCurrency(block.scopePrice)"></span>
-                                                </div>
-                                                <div class="breakdown-row">
-                                                    <span>Sistemas extra:</span>
-                                                    <span x-text="formatCurrency(block.systemsPrice)"></span>
-                                                </div>
-                                                <div class="breakdown-row total">
-                                                    <span>Subtotal:</span>
-                                                    <span x-text="formatCurrency(block.subtotal)"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </template>
-                                    
-                                    <!-- Bloques genéricos (incluye section) -->
-                                    <template x-if="['maintenance', 'consulting', 'section', 'generic'].includes(block.type)">
-                                        <div class="space-y-2">
-                                            <div class="field-group">
-                                                <label class="field-label">Nivel</label>
-                                                <select 
-                                                    x-model="block.service_level"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-select"
-                                                >
-                                                    <option value="basic">Básico</option>
-                                                    <option value="standard">Estándar</option>
-                                                    <option value="premium">Premium</option>
-                                                </select>
-                                            </div>
-                                            <div class="field-group">
-                                                <label class="field-label">Horas</label>
-                                                <input 
-                                                    type="number" 
-                                                    x-model="block.hours"
-                                                    min="1"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-input"
-                                                />
-                                            </div>
-                                            <div class="field-group">
-                                                <label class="field-label">Frecuencia</label>
-                                                <select 
-                                                    x-model="block.frequency"
-                                                    @change="updateBlockPrice(block)"
-                                                    class="field-select"
-                                                >
-                                                    <option value="one_time">Una vez</option>
-                                                    <option value="monthly">Mensual</option>
-                                                    <option value="quarterly">Trimestral</option>
-                                                    <option value="annual">Anual</option>
-                                                </select>
-                                            </div>
-                                            <div class="price-breakdown" x-show="block.subtotal > 0">
-                                                <div class="breakdown-row">
-                                                    <span>Base:</span>
-                                                    <span x-text="formatCurrency(block.base_price)"></span>
-                                                </div>
-                                                <div class="breakdown-row">
-                                                    <span>Nivel:</span>
-                                                    <span x-text="formatCurrency(block.serviceLevelPrice)"></span>
-                                                </div>
-                                                <div class="breakdown-row total">
-                                                    <span>Subtotal:</span>
-                                                    <span x-text="formatCurrency(block.subtotal)"></span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </template>
-                                    
+
                                     <!-- Cantidad -->
                                     <div class="field-group mt-3">
                                         <label class="field-label">Cantidad</label>
@@ -2171,148 +1954,13 @@
                 }
             },
             
-            evaluateFormula(formula, block) {
-                try {
-                    if (!formula || formula.trim() === '') {
-                        return block.base_price || 0;
-                    }
-                    
-                    // Crear contexto con propiedades del bloque
-                    const context = {
-                        base_price: block.base_price || 0,
-                        quantity: block.quantity || 1,
-                        hours: block.hours || block.default_hours || 20,
-                        participants: block.participants || 1,
-                        systems: block.systems || 1,
-                        modality: this.getModalityFactor(block.modality),
-                        difficulty: this.getDifficultyFactor(block.difficulty),
-                        complexity: this.getComplexityFactor(block.complexity),
-                        scope: this.getScopeFactor(block.scope),
-                        service_level: this.getServiceLevelFactor(block.service_level)
-                    };
-                    
-                    // Agregar propiedades específicas del bloque
-                    for (const [key, value] of Object.entries(block)) {
-                        if (typeof value === 'number') {
-                            context[key] = value;
-                        }
-                    }
-                    
-                    // Reemplazar variables en la fórmula
-                    let processedFormula = formula;
-                    for (const [key, value] of Object.entries(context)) {
-                        const regex = new RegExp(`\\{${key}\\}`, 'g');
-                        processedFormula = processedFormula.replace(regex, value.toString());
-                    }
-                    
-                    // Evaluar expresión matemática segura
-                    // Solo permitir números, operadores matemáticos, paréntesis y espacios
-                    const mathExpression = processedFormula.replace(/[^0-9+\-*/().\s]/g, '');
-                    
-                    if (!mathExpression.trim()) {
-                        return block.base_price || 0;
-                    }
-                    
-                    // Evaluar usando Function constructor en modo estricto
-                    const result = Function('"use strict"; return (' + mathExpression + ')')();
-                    
-                    return isNaN(result) ? block.base_price || 0 : Number(result);
-                    
-                } catch (error) {
-                    console.error('Error evaluando fórmula:', error, 'Fórmula:', formula);
-                    return block.base_price || 0;
-                }
-            },
+           
             
-            // Factores para cálculos
-            getModalityFactor(modality) {
-                const factors = { online: 1.0, onsite: 1.3, hybrid: 1.15 };
-                return factors[modality] || 1.0;
-            },
-            
-            getDifficultyFactor(difficulty) {
-                const factors = { basic: 1.0, intermediate: 1.2, advanced: 1.4 };
-                return factors[difficulty] || 1.0;
-            },
-            
-            getComplexityFactor(complexity) {
-                const factors = { simple: 1.0, medium: 1.5, complex: 2.0 };
-                return factors[complexity] || 1.5;
-            },
-            
-            getScopeFactor(scope) {
-                const factors = { basic: 0.7, standard: 1.0, comprehensive: 1.4 };
-                return factors[scope] || 1.0;
-            },
-            
-            getServiceLevelFactor(level) {
-                const factors = { basic: 0.8, standard: 1.0, premium: 1.3 };
-                return factors[level] || 1.0;
-            },
             
            
-           // Cálculos tradicionales (backup si no hay fórmula) - CORREGIDO
-            calculateCoursePrice(block) {
-                const modalityPrices = { online: 0, onsite: 0.3, hybrid: 0.15 };// <-- Coregir para que los factotres esten en panel de admin
-                const difficultyPrices = { basic: 0, intermediate: 0.2, advanced: 0.4 };// <-- Coregir para que los factotres esten en panel de admin
-                
-                // Obtener horas por defecto del bloque (no usar 20 fijo)
-                const defaultHours = block.default_hours || 20;
-                const currentHours = block.hours || defaultHours;
-                
-                // Calcular precio por hora
-                const pricePerHour = block.base_price / defaultHours;
-                
-                const modalityPrice = block.base_price * (modalityPrices[block.modality] || 0);
-                const difficultyPrice = block.base_price * (difficultyPrices[block.difficulty] || 0);
-                const participantsPrice = Math.max(0, ((block.participants || 10) - 10) * 500);
-                
-                // Usar defaultHours del bloque en lugar de 20 fijo
-                const hoursPrice = Math.max(0, (currentHours - defaultHours) * pricePerHour * 1.5);
-                
-                return block.base_price + modalityPrice + difficultyPrice + participantsPrice + hoursPrice;
-            },
+           
 
-            calculateSoftwarePrice(block) {
-                const complexityFactors = { simple: 1.0, medium: 1.5, complex: 2.0 };// <-- Coregir para que los factotres esten en panel de admin
-                const integrationPrices = { none: 0, basic: 5000, advanced: 10000 };// <-- Coregir para que los factotres esten en panel de admin
-                
-                // Obtener horas por defecto del bloque (no usar 80 fijo)
-                const defaultHours = block.default_hours || 80;
-                const currentHours = block.hours || defaultHours;
-                
-                // Calcular precio por hora
-                const pricePerHour = block.base_price / defaultHours;
-                
-                const factor = complexityFactors[block.complexity] || 1.5;
-                const complexityPrice = block.base_price * (factor - 1);
-                
-                // Usar defaultHours del bloque en lugar de 80 fijo
-                const hoursPrice = Math.max(0, (currentHours - defaultHours) * pricePerHour * 1.8);
-                const integrationsPrice = integrationPrices[block.integrations] || 0;
-                
-                return (block.base_price * factor) + hoursPrice + integrationsPrice;
-            },
-
-            calculateAuditPrice(block) {
-                const scopeFactors = { basic: 0.7, standard: 1.0, comprehensive: 1.4 };// <-- Coregir para que los factotres esten en panel de admin
-                
-                // Obtener horas por defecto del bloque (no usar 40 fijo)
-                const defaultHours = block.default_hours || 40;
-                const currentHours = block.hours || defaultHours;
-                
-                // Calcular precio por hora
-                const pricePerHour = block.base_price / defaultHours;
-                
-                const factor = scopeFactors[block.scope] || 1.0;
-                const scopePrice = block.base_price * (factor - 1);
-                const systemsPrice = Math.max(0, ((block.systems || 1) - 1) * 2000);
-                
-                // Usar defaultHours del bloque en lugar de 40 fijo
-                const hoursPrice = Math.max(0, (currentHours - defaultHours) * pricePerHour * 1.6);
-                
-                return (block.base_price * factor) + systemsPrice + hoursPrice;
-            },
+            
 
             calculateGenericPrice(block) {
                 const serviceLevelFactors = { basic: 0.8, standard: 1.0, premium: 1.3 };// <-- Coregir para que los factotres esten en panel de admin
@@ -2344,7 +1992,7 @@
             removeBlock(instanceId) {
                 this.placedBlocks = this.placedBlocks.filter(b => b.instanceId !== instanceId);
                 this.saveToHistory();
-                this.showToast('Bloque eliminado', 'info');
+                this.showToast('Bloque eliminado', 'warning');
             },
             
             duplicateBlock(instanceId) {

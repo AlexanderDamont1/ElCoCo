@@ -10,13 +10,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Models\QuoteBlockCategory;
 
 class QuoteController extends Controller
 {
-    public function builder()
-    {
-        return view('quotes.builder');
-    }
+public function builder()
+{
+    $categories = QuoteBlockCategory::with([
+        'blocks' => function ($query) {
+            $query->where('is_active', true)->orderBy('order');
+        }
+    ])->orderBy('order')->get();
+
+    return view('quotes.builder', compact('categories'));
+}
+
+
 
     public function apiBlocks()
     {
@@ -43,8 +52,6 @@ class QuoteController extends Controller
                         'base_price' => (float) $block->base_price,
                         'default_hours' => $block->default_hours,
                         'config' => $block->config ?: (object) [],
-                        'formula' => $block->formula,
-                        'validation_rules' => $block->validation_rules ?: (object) [],
                         'order' => $block->order
                     ];
                 })
