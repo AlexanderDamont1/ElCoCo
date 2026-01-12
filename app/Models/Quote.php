@@ -2,6 +2,8 @@
 // app/Models/Quote.php
 namespace App\Models;
 
+
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
@@ -13,7 +15,7 @@ class Quote extends Model
         'client_email',
         'client_company',
         'client_phone',
-        //'project_description',
+        'cita',
         'additional_requirements',
         'data',
         'subtotal',
@@ -27,6 +29,7 @@ class Quote extends Model
 
     protected $casts = [
         'data' => 'array',
+        'cita'=> 'array',
         'sent_at' => 'datetime',
         'subtotal' => 'decimal:2',
         'tax' => 'decimal:2',
@@ -52,5 +55,11 @@ class Quote extends Model
     public function getPdfUrlAttribute()
     {
         return $this->pdf_path ? asset('storage/' . $this->pdf_path) : null;
+    }
+
+
+    public function replies()
+    {
+        return $this->hasMany(QuoteReply::class);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Admin\QuoteBlockController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Quote;
@@ -41,6 +42,9 @@ Route::prefix('/api')->group(function () {
     Route::post('/quotes/save-draft', [QuoteController::class, 'saveDraft']);
     Route::post('/quotes/generate-pdf', [QuoteController::class, 'generatePdf']);
     Route::post('/quotes/submit', [QuoteController::class, 'submit']);
+
+    // routes/api.php
+Route::post('/quotes/submit-with-appointment', [QuoteController::class, 'submitQuoteWithAppointment']);
 });
 
 
@@ -60,8 +64,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::get('/cotizadorb', function () {return view('cotizador.edit');})->name('cotizador.edit');
-
    Route::get('/bloques', [QuoteBlockController::class, 'index'])->name('bloques.index');
 
    Route::get('/bloques/{quoteBlock}/edit', [QuoteBlockController::class, 'edit'])->name('bloques.edit');
@@ -75,6 +77,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
    Route::get('/admin/cotizaciones/{quote}', [QuoteController::class, 'show'])->name('admin.quotes.show');
         
    Route::patch('/admin/cotizaciones/{quote}/status', [QuoteController::class, 'updateStatus'])->name('admin.quotes.status');
+
+
+   Route::post('/admin/quotes/{quote}/reply',[QuoteController::class, 'reply'])->name('admin.quotes.reply');
+
+
     /*
     |--------------------------------------------------------------------------
     | ADMIN

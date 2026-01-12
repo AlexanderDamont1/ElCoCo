@@ -1534,7 +1534,6 @@
                             placeholder="Información adicional o requerimientos especiales..."
                         ></textarea>
                     </div>
-                    
                     <div class="pt-4 border-t border-gray-200">
                         <h3 class="font-semibold text-gray-900 text-sm mb-3">Resumen de la cotización</h3>
                         <div class="space-y-2 text-xs">
@@ -1634,964 +1633,1068 @@
 
     <script>
     function quoteBuilder() {
-        return {
-            // Estado inicial
-            categories: [],
-            blocks: [],
-            placedBlocks: [],
-            zoom: 1,
-            isLoadingBlocks: false,
+    return {
+        // Estado inicial
+        categories: [],
+        blocks: [],
+        placedBlocks: [],
+        zoom: 1,
+        isLoadingBlocks: false,
+        
+        // UI State
+        showSubmitModal: false,
+        showSuccessModal: false,
+        isSubmitting: false,
+        isExportingPDF: false,
+        pdfGenerated: false,
+        
+        // Historial
+        history: [],
+        historyIndex: -1,
+        
+        // Formulario de cliente
+        clientForm: {
+            name: '',
+            email: '',
+            phone: '',
+            company: '',
+            notes: ''
+        },
+        
+        // Sistema de citas
+        showAppointmentSection: false,
+        isLoadingTimes: false,
+        appointmentError: '',
+        appointmentReference: '',
+        
+        
+        // Horarios disponibles
+        availableTimeSlots: [],
+        
+        // Referencia
+        quoteReference: '',
+        pdfUrl: '',
+        
+        // Propiedades computadas
+        get subtotal() {
+            return this.placedBlocks.reduce((total, block) => {
+                return total + (block.totalPrice || 0);
+            }, 0);
+        },
+        
+        get totalTax() {
+            return this.subtotal * 0.16;
+        },
+        
+        get totalCost() {
+            return this.subtotal + this.totalTax;
+        },
+        
+        get totalHours() {
+            return this.placedBlocks.reduce((total, block) => {
+                return total + (block.hours || 0) * (block.quantity || 1);
+            }, 0);
+        },
+        
+        // Propiedades computadas para fechas de citas
+        get appointmentMinDate() {
+            const today = new Date();
+            return today.toISOString().split('T')[0];
+        },
+        
+        get appointmentMaxDate() {
+            const maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() + 28); // +4 semanas
+            return maxDate.toISOString().split('T')[0];
+        },
+        
+        // Métodos de inicialización
+        init() {
+            this.loadBlocks();
+            this.loadSavedState();
             
-            // UI State
-            showSubmitModal: false,
-            showSuccessModal: false,
-            isSubmitting: false,
-            isExportingPDF: false,
-            pdfGenerated: false,
+            // Inicializar interact.js
+            this.$nextTick(() => {
+                this.setupInteractJS();
+            });
             
-            // Historial
-            history: [],
-            historyIndex: -1,
+            this.setupKeyboardShortcuts();
+            this.setupAutoSave();
+            this.saveToHistory();
+        },
+        
+        // Cargar bloques desde API
+        async loadBlocks() {
+            this.isLoadingBlocks = true;
             
-            // Formulario de cliente
-            clientForm: {
-                name: '',
-                email: '',
-                phone: '',
-                company: '',
-                notes: ''
-            },
-            
-            // Referencia
-            quoteReference: '',
-            pdfUrl: '',
-            
-            // Propiedades computadas
-            get subtotal() {
-                return this.placedBlocks.reduce((total, block) => {
-                    return total + (block.totalPrice || 0);
-                }, 0);
-            },
-            
-            get totalTax() {
-                return this.subtotal * 0.16;
-            },
-            
-            get totalCost() {
-                return this.subtotal + this.totalTax;
-            },
-            
-            get totalHours() {
-                return this.placedBlocks.reduce((total, block) => {
-                    return total + (block.hours || 0) * (block.quantity || 1);
-                }, 0);
-            },
-            
-            // Métodos de inicialización
-            init() {
-                this.loadBlocks();
-                this.loadSavedState();
+            try {
+                console.log('Cargando bloques desde API...');
                 
-                // Inicializar interact.js
-                this.$nextTick(() => {
-                    this.setupInteractJS();
+                // Obtener token CSRF
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                
+                const response = await fetch('/api/quote-blocks', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
                 });
                 
-                this.setupKeyboardShortcuts();
-                this.setupAutoSave();
-                this.saveToHistory();
-            },
-            
-            // Cargar bloques desde API
-            async loadBlocks() {
-                this.isLoadingBlocks = true;
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
                 
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error('Respuesta no exitosa del servidor');
+                }
+                
+                // Asignar las categorías y bloques desde la API
+                this.categories = result.categories || [];
+                
+                // Crear una lista plana de todos los bloques para fácil acceso
+                this.blocks = this.categories.flatMap(category => 
+                    category.blocks.map(block => ({
+                        ...block,
+                        category_name: category.name
+                    }))
+                );
+                
+                console.log(`Bloques cargados: ${this.blocks.length} bloques en ${this.categories.length} categorías`);
+                
+                // Mostrar mensaje si no hay bloques
+                if (this.blocks.length === 0) {
+                    this.showToast('No hay servicios disponibles. Agrega bloques desde el panel de administración.', 'warning');
+                }
+                
+            } catch (error) {
+                console.error('Error cargando bloques desde API:', error);
+                
+                // Mostrar datos de ejemplo como fallback
+                this.showToast('Error al cargar servicios. Mostrando datos de ejemplo.', 'error');
+                
+                this.loadFallbackBlocks();
+            } finally {
+                this.isLoadingBlocks = false;
+            }
+        },
+        
+        // Método auxiliar para compatibilidad
+        getBlocksByCategory(categoryId) {
+            const category = this.categories.find(c => c.id == categoryId);
+            return category ? category.blocks : [];
+        },
+        
+        
+        toggleCategory(categoryId) {
+            const category = this.categories.find(c => c.id === categoryId);
+            if (category) {
+                category.expanded = !category.expanded;
+            }
+        },
+        
+        // Drag & Drop mejorado
+        onDragStart(event, block) {
+            event.dataTransfer.setData('text/plain', JSON.stringify(block));
+            event.dataTransfer.effectAllowed = 'copy';
+            event.target.classList.add('dragging');
+        },
+        
+        onDragEnd(event) {
+            event.target.classList.remove('dragging');
+        },
+        
+        onCanvasDragOver(event) {
+            event.preventDefault();
+            event.dataTransfer.dropEffect = 'copy';
+        },
+        
+        onCanvasDrop(event) {
+            event.preventDefault();
+            
+            try {
+                const blockData = JSON.parse(event.dataTransfer.getData('text/plain'));
+                const canvas = document.getElementById('construction-canvas');
+                const rect = canvas.getBoundingClientRect();
+                
+                // Calcular posición EXACTA donde se soltó (ajustada por zoom)
+                const x = (event.clientX - rect.left) / this.zoom;
+                const y = (event.clientY - rect.top) / this.zoom;
+                
+                // Ajustar para que el bloque quede centrado en el cursor
+                const blockWidth = 260;
+                const blockHeight = 120;
+                
+                this.addBlockToCanvas(blockData, x - (blockWidth / 2), y - 30);
+            } catch (error) {
+                console.error('Error dropping block:', error);
+            }
+        },
+        
+        addBlockToCanvas(blockData, x, y) {
+            const instanceId = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+            
+            const block = {
+                ...this.initializeBlockData(blockData),
+                instanceId,
+                x: Math.max(0, x),
+                y: Math.max(0, y),
+                zIndex: 10 + this.placedBlocks.length,
+                isDragging: false
+            };
+            
+            // Calcular precio inicial
+            this.updateBlockPrice(block);
+            this.placedBlocks.push(block);
+            this.saveToHistory();
+            
+            this.showToast('Bloque agregado', 'success');
+        },
+        
+        initializeBlockData(blockData) {
+            // Crear una copia profunda del bloque base
+            const baseBlock = JSON.parse(JSON.stringify(blockData));
+            
+            // Propiedades básicas
+            baseBlock.quantity = 1;
+            baseBlock.hours = blockData.default_hours || 20;
+            baseBlock.zIndex = 10 + this.placedBlocks.length;
+            baseBlock.isDragging = false;
+            
+            // Inicializar configuraciones específicas desde blockData.config
+            const config = blockData.config || {};
+            
+            // Configuración por tipo
+            switch (blockData.type) {
+                case 'course':
+                    baseBlock.modality = config.default_modality || 'online';
+                    baseBlock.difficulty = config.default_difficulty || 'basic';
+                    baseBlock.participants = config.default_participants || 10;
+                    break;
+                    
+                case 'software_module':
+                    baseBlock.complexity = config.default_complexity || 'medium';
+                    baseBlock.integrations = config.default_integrations || 'none';
+                    break;
+                    
+                case 'audit':
+                    baseBlock.scope = config.default_scope || 'standard';
+                    baseBlock.systems = config.default_systems || 1;
+                    break;
+                    
+                case 'maintenance':
+                case 'consulting':
+                case 'generic':
+                case 'section':
+                    baseBlock.service_level = config.default_service_level || 'standard';
+                    baseBlock.frequency = config.default_frequency || 'monthly';
+                    break;
+            }
+            
+            return baseBlock;
+        },
+        
+        // Cálculos de precios - CORREGIDO
+        updateBlockPrice(block) {
+            let subtotal = 0;
+            
+            if (block.formula) {
                 try {
-                    console.log('Cargando bloques desde API...');
-                    
-                    // Obtener token CSRF
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                    
-                    const response = await fetch('/api/quote-blocks', {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': csrfToken
-                        }
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`Error HTTP: ${response.status}`);
-                    }
-                    
-                    const result = await response.json();
-                    
-                    if (!result.success) {
-                        throw new Error('Respuesta no exitosa del servidor');
-                    }
-                    
-                    // Asignar las categorías y bloques desde la API
-                    this.categories = result.categories || [];
-                    
-                    // Crear una lista plana de todos los bloques para fácil acceso
-                    this.blocks = this.categories.flatMap(category => 
-                        category.blocks.map(block => ({
-                            ...block,
-                            category_name: category.name
-                        }))
-                    );
-                    
-                    console.log(`Bloques cargados: ${this.blocks.length} bloques en ${this.categories.length} categorías`);
-                    
-                    // Mostrar mensaje si no hay bloques
-                    if (this.blocks.length === 0) {
-                        this.showToast('No hay servicios disponibles. Agrega bloques desde el panel de administración.', 'warning');
-                    }
-                    
+                    subtotal = this.evaluateFormula(block.formula, block);
                 } catch (error) {
-                    console.error('Error cargando bloques desde API:', error);
-                    
-                    // Mostrar datos de ejemplo como fallback
-                    this.showToast('Error al cargar servicios. Mostrando datos de ejemplo.', 'error');
-                    
-                    this.loadFallbackBlocks();
-                } finally {
-                    this.isLoadingBlocks = false;
-                }
-            },
-            
-            // Método auxiliar para compatibilidad
-            getBlocksByCategory(categoryId) {
-                const category = this.categories.find(c => c.id == categoryId);
-                return category ? category.blocks : [];
-            },
-            
-            loadFallbackBlocks() {
-                console.warn('Usando bloques de ejemplo (fallback)');
-                
-                this.categories = [
-                    { 
-                        id: 1, 
-                        name: 'Bloques de Ejemplo', 
-                        description: 'Se cargarán automáticamente los bloques que crees en el admin',
-                        expanded: true,
-                        blocks: [
-                            {
-                                id: 'example_1',
-                                name: 'Servicio de Ejemplo',
-                                description: 'Crea bloques en el panel de administración para verlos aquí',
-                                type: 'generic',
-                                category_id: 1,
-                                base_price: 5000,
-                                default_hours: 10,
-                                config: {},
-                                formula: null,
-                                order: 1
-                            }
-                        ]
-                    }
-                ];
-                
-                this.blocks = this.categories.flatMap(c => c.blocks);
-            },
-            
-            toggleCategory(categoryId) {
-                const category = this.categories.find(c => c.id === categoryId);
-                if (category) {
-                    category.expanded = !category.expanded;
-                }
-            },
-            
-            // Drag & Drop mejorado
-            onDragStart(event, block) {
-                event.dataTransfer.setData('text/plain', JSON.stringify(block));
-                event.dataTransfer.effectAllowed = 'copy';
-                event.target.classList.add('dragging');
-            },
-            
-            onDragEnd(event) {
-                event.target.classList.remove('dragging');
-            },
-            
-            onCanvasDragOver(event) {
-                event.preventDefault();
-                event.dataTransfer.dropEffect = 'copy';
-            },
-            
-            onCanvasDrop(event) {
-                event.preventDefault();
-                
-                try {
-                    const blockData = JSON.parse(event.dataTransfer.getData('text/plain'));
-                    const canvas = document.getElementById('construction-canvas');
-                    const rect = canvas.getBoundingClientRect();
-                    
-                    // Calcular posición EXACTA donde se soltó (ajustada por zoom)
-                    const x = (event.clientX - rect.left) / this.zoom;
-                    const y = (event.clientY - rect.top) / this.zoom;
-                    
-                    // Ajustar para que el bloque quede centrado en el cursor
-                    const blockWidth = 260;
-                    const blockHeight = 120;
-                    
-                    this.addBlockToCanvas(blockData, x - (blockWidth / 2), y - 30);
-                } catch (error) {
-                    console.error('Error dropping block:', error);
-                }
-            },
-            
-            addBlockToCanvas(blockData, x, y) {
-                const instanceId = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-                
-                const block = {
-                    ...this.initializeBlockData(blockData),
-                    instanceId,
-                    x: Math.max(0, x),
-                    y: Math.max(0, y),
-                    zIndex: 10 + this.placedBlocks.length,
-                    isDragging: false
-                };
-                
-                // Calcular precio inicial
-                this.updateBlockPrice(block);
-                this.placedBlocks.push(block);
-                this.saveToHistory();
-                
-                this.showToast('Bloque agregado', 'success');
-            },
-            
-            initializeBlockData(blockData) {
-                // Crear una copia profunda del bloque base
-                const baseBlock = JSON.parse(JSON.stringify(blockData));
-                
-                // Propiedades básicas
-                baseBlock.quantity = 1;
-                baseBlock.hours = blockData.default_hours || 20;
-                baseBlock.zIndex = 10 + this.placedBlocks.length;
-                baseBlock.isDragging = false;
-                
-                // Inicializar configuraciones específicas desde blockData.config
-                const config = blockData.config || {};
-                
-                // Configuración por tipo
-                switch (blockData.type) {
-                    case 'course':
-                        baseBlock.modality = config.default_modality || 'online';
-                        baseBlock.difficulty = config.default_difficulty || 'basic';
-                        baseBlock.participants = config.default_participants || 10;
-                        break;
-                        
-                    case 'software_module':
-                        baseBlock.complexity = config.default_complexity || 'medium';
-                        baseBlock.integrations = config.default_integrations || 'none';
-                        break;
-                        
-                    case 'audit':
-                        baseBlock.scope = config.default_scope || 'standard';
-                        baseBlock.systems = config.default_systems || 1;
-                        break;
-                        
-                    case 'maintenance':
-                    case 'consulting':
-                    case 'generic':
-                    case 'section':
-                        baseBlock.service_level = config.default_service_level || 'standard';
-                        baseBlock.frequency = config.default_frequency || 'monthly';
-                        break;
-                }
-                
-                return baseBlock;
-            },
-            
-            // Cálculos de precios - CORREGIDO
-            updateBlockPrice(block) {
-                let subtotal = 0;
-                
-                if (block.formula) {
-                    try {
-                        subtotal = this.evaluateFormula(block.formula, block);
-                    } catch (error) {
-                        console.warn('Error en fórmula, usando cálculo por defecto:', error);
-                        subtotal = this.calculateByType(block);
-                    }
-                } else {
+                    console.warn('Error en fórmula, usando cálculo por defecto:', error);
                     subtotal = this.calculateByType(block);
                 }
-                
-                // Calcular precio por hora para mostrar en UI
-                const defaultHours = block.default_hours || 20;
-                block.pricePerHour = block.base_price / defaultHours;
-                
-                block.subtotal = subtotal;
-                block.totalPrice = subtotal * (block.quantity || 1);
-                
-                console.log('Precio actualizado:', {
-                    nombre: block.name,
-                    base: block.base_price,
-                    default_hours: defaultHours,
-                    horas_actuales: block.hours,
-                    precio_por_hora: block.pricePerHour,
-                    subtotal: block.subtotal,
-                    total: block.totalPrice
-                });
-                
-                this.saveToHistory();
-                return block.totalPrice;
-            },
+            } else {
+                subtotal = this.calculateByType(block);
+            }
             
-            calculateByType(block) {
-                switch (block.type) {
-                    case 'course':
-                        return this.calculateCoursePrice(block);
-                    case 'software_module':
-                        return this.calculateSoftwarePrice(block);
-                    case 'audit':
-                        return this.calculateAuditPrice(block);
-                    default:
-                        return this.calculateGenericPrice(block);
+            // Calcular precio por hora para mostrar en UI
+            const defaultHours = block.default_hours || 20;
+            block.pricePerHour = block.base_price / defaultHours;
+            
+            block.subtotal = subtotal;
+            block.totalPrice = subtotal * (block.quantity || 1);
+            
+            console.log('Precio actualizado:', {
+                nombre: block.name,
+                base: block.base_price,
+                default_hours: defaultHours,
+                horas_actuales: block.hours,
+                precio_por_hora: block.pricePerHour,
+                subtotal: block.subtotal,
+                total: block.totalPrice
+            });
+            
+            this.saveToHistory();
+            return block.totalPrice;
+        },
+        
+        calculateByType(block) {
+            switch (block.type) {
+                case 'course':
+                    return this.calculateCoursePrice(block);
+                case 'software_module':
+                    return this.calculateSoftwarePrice(block);
+                case 'audit':
+                    return this.calculateAuditPrice(block);
+                default:
+                    return this.calculateGenericPrice(block);
+            }
+        },
+        
+        calculateGenericPrice(block) {
+            const serviceLevelFactors = { basic: 0.8, standard: 1.0, premium: 1.3 };
+            
+            // Obtener horas por defecto del bloque (no usar 20 fijo)
+            const defaultHours = block.default_hours || 20;
+            const currentHours = block.hours || defaultHours;
+            
+            // Calcular precio por hora
+            const pricePerHour = block.base_price / defaultHours;
+            
+            const factor = serviceLevelFactors[block.service_level] || 1.0;
+            const serviceLevelPrice = block.base_price * (factor - 1);
+            
+            // Usar defaultHours del bloque en lugar de 20 fijo
+            const hoursPrice = Math.max(0, (currentHours - defaultHours) * pricePerHour * 1.5);
+            
+            return (block.base_price * factor) + hoursPrice;
+        },
+        
+        // Método para actualizar un parámetro y recalcular precio
+        updateBlockParameter(block, parameter, value) {
+            block[parameter] = value;
+            this.updateBlockPrice(block);
+            this.showToast(`${parameter} actualizado`, 'info');
+        },
+        
+        // Gestión de bloques
+        removeBlock(instanceId) {
+            this.placedBlocks = this.placedBlocks.filter(b => b.instanceId !== instanceId);
+            this.saveToHistory();
+            this.showToast('Bloque eliminado', 'warning');
+        },
+        
+        duplicateBlock(instanceId) {
+            const original = this.placedBlocks.find(b => b.instanceId === instanceId);
+            if (original) {
+                const duplicate = JSON.parse(JSON.stringify(original));
+                duplicate.instanceId = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+                duplicate.x += 20;
+                duplicate.y += 20;
+                duplicate.zIndex = 10 + this.placedBlocks.length;
+                
+                this.placedBlocks.push(duplicate);
+                this.saveToHistory();
+                this.showToast('Bloque duplicado', 'success');
+            }
+        },
+        
+        // Zoom (aplica a los bloques individualmente)
+        zoomIn() {
+            if (this.zoom < 2) {
+                this.zoom = Math.round((this.zoom + 0.1) * 10) / 10;
+                this.updateCanvasZoom();
+            }
+        },
+        
+        zoomOut() {
+            if (this.zoom > 0.5) {
+                this.zoom = Math.round((this.zoom - 0.1) * 10) / 10;
+                this.updateCanvasZoom();
+            }
+        },
+        
+        updateCanvasZoom() {
+            // Actualizar CSS variable para los bloques
+            document.documentElement.style.setProperty('--zoom-level', this.zoom);
+        },
+        
+        // Historial
+        saveToHistory() {
+            // Limitar historial
+            if (this.history.length >= 30) {
+                this.history.shift();
+                this.historyIndex = Math.max(0, this.historyIndex - 1);
+            }
+            
+            this.history = this.history.slice(0, this.historyIndex + 1);
+            
+            const state = {
+                placedBlocks: JSON.parse(JSON.stringify(this.placedBlocks)),
+                zoom: this.zoom
+            };
+            
+            this.history.push(state);
+            this.historyIndex = this.history.length - 1;
+        },
+        
+        undo() {
+            if (this.historyIndex > 0) {
+                this.historyIndex--;
+                const state = this.history[this.historyIndex];
+                this.placedBlocks = JSON.parse(JSON.stringify(state.placedBlocks));
+                this.zoom = state.zoom;
+                this.updateCanvasZoom();
+                this.showToast('Cambio deshecho', 'info');
+            }
+        },
+        
+        redo() {
+            if (this.historyIndex < this.history.length - 1) {
+                this.historyIndex++;
+                const state = this.history[this.historyIndex];
+                this.placedBlocks = JSON.parse(JSON.stringify(state.placedBlocks));
+                this.zoom = state.zoom;
+                this.updateCanvasZoom();
+                this.showToast('Cambio rehecho', 'info');
+            }
+        },
+        
+        // Interact.js con zoom en cuenta
+        setupInteractJS() {
+            const canvas = document.getElementById('construction-canvas');
+            if (!canvas || !interact) return;
+            
+            interact('.draggable-block', {
+                context: canvas
+            }).draggable({
+                listeners: {
+                    start: (event) => {
+                        const instanceId = event.target.getAttribute('data-instance-id');
+                        const block = this.placedBlocks.find(b => b.instanceId === instanceId);
+                        if (block) {
+                            block.isDragging = true;
+                            block.zIndex = 100 + this.placedBlocks.length;
+                        }
+                    },
+                    move: (event) => {
+                        const instanceId = event.target.getAttribute('data-instance-id');
+                        const block = this.placedBlocks.find(b => b.instanceId === instanceId);
+                        if (block) {
+                            // Ajustar movimiento por el zoom
+                            block.x += event.dx / this.zoom;
+                            block.y += event.dy / this.zoom;
+                            
+                            // Mantener dentro del canvas
+                            const maxX = 2000 - 260;
+                            const maxY = 2000 - 120;
+                            
+                            block.x = Math.max(0, Math.min(block.x, maxX));
+                            block.y = Math.max(0, Math.min(block.y, maxY));
+                        }
+                    },
+                    end: (event) => {
+                        const instanceId = event.target.getAttribute('data-instance-id');
+                        const block = this.placedBlocks.find(b => b.instanceId === instanceId);
+                        if (block) {
+                            block.isDragging = false;
+                            block.zIndex = 10;
+                            this.saveToHistory();
+                        }
+                    }
                 }
-            },
-            
-           
-            
-            
-           
-           
-
-            
-
-            calculateGenericPrice(block) {
-                const serviceLevelFactors = { basic: 0.8, standard: 1.0, premium: 1.3 };// <-- Coregir para que los factotres esten en panel de admin
-                
-                // Obtener horas por defecto del bloque (no usar 20 fijo)
-                const defaultHours = block.default_hours || 20;
-                const currentHours = block.hours || defaultHours;
-                
-                // Calcular precio por hora
-                const pricePerHour = block.base_price / defaultHours;
-                
-                const factor = serviceLevelFactors[block.service_level] || 1.0;
-                const serviceLevelPrice = block.base_price * (factor - 1);
-                
-                // Usar defaultHours del bloque en lugar de 20 fijo
-                const hoursPrice = Math.max(0, (currentHours - defaultHours) * pricePerHour * 1.5);
-                
-                return (block.base_price * factor) + hoursPrice;
-            },
-            
-            // Método para actualizar un parámetro y recalcular precio
-            updateBlockParameter(block, parameter, value) {
-                block[parameter] = value;
-                this.updateBlockPrice(block);
-                this.showToast(`${parameter} actualizado`, 'info');
-            },
-            
-            // Gestión de bloques
-            removeBlock(instanceId) {
-                this.placedBlocks = this.placedBlocks.filter(b => b.instanceId !== instanceId);
-                this.saveToHistory();
-                this.showToast('Bloque eliminado', 'warning');
-            },
-            
-            duplicateBlock(instanceId) {
-                const original = this.placedBlocks.find(b => b.instanceId === instanceId);
-                if (original) {
-                    const duplicate = JSON.parse(JSON.stringify(original));
-                    duplicate.instanceId = 'block_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-                    duplicate.x += 20;
-                    duplicate.y += 20;
-                    duplicate.zIndex = 10 + this.placedBlocks.length;
+            });
+        },
+        
+        // Atajos de teclado
+        setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (event) => {
+                if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
+                    event.preventDefault();
+                    this.undo();
+                }
+                if ((event.ctrlKey || event.metaKey) && (event.key === 'y' || (event.key === 'z' && event.shiftKey))) {
+                    event.preventDefault();
+                    this.redo();
+                }
+            });
+        },
+        
+        // Guardado automático
+        setupAutoSave() {
+            setInterval(() => {
+                if (this.placedBlocks.length > 0) {
+                    this.saveState();
+                }
+            }, 30000);
+        },
+        
+        loadSavedState() {
+            try {
+                const saved = localStorage.getItem('quoteBuilderState');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    this.placedBlocks = state.placedBlocks || [];
+                    this.zoom = state.zoom || 1;
+                    this.updateCanvasZoom();
                     
-                    this.placedBlocks.push(duplicate);
-                    this.saveToHistory();
-                    this.showToast('Bloque duplicado', 'success');
+                    // Recalcular precios
+                    this.placedBlocks.forEach(block => this.updateBlockPrice(block));
                 }
-            },
-            
-            // Zoom (aplica a los bloques individualmente)
-            zoomIn() {
-                if (this.zoom < 2) {
-                    this.zoom = Math.round((this.zoom + 0.1) * 10) / 10;
-                    this.updateCanvasZoom();
-                }
-            },
-            
-            zoomOut() {
-                if (this.zoom > 0.5) {
-                    this.zoom = Math.round((this.zoom - 0.1) * 10) / 10;
-                    this.updateCanvasZoom();
-                }
-            },
-            
-            updateCanvasZoom() {
-                // Actualizar CSS variable para los bloques
-                document.documentElement.style.setProperty('--zoom-level', this.zoom);
-            },
-            
-            // Historial
-            saveToHistory() {
-                // Limitar historial
-                if (this.history.length >= 30) {
-                    this.history.shift();
-                    this.historyIndex = Math.max(0, this.historyIndex - 1);
-                }
-                
-                this.history = this.history.slice(0, this.historyIndex + 1);
-                
+            } catch (error) {
+                console.warn('Error loading saved state:', error);
+            }
+        },
+        
+        saveState() {
+            try {
                 const state = {
-                    placedBlocks: JSON.parse(JSON.stringify(this.placedBlocks)),
-                    zoom: this.zoom
+                    placedBlocks: this.placedBlocks,
+                    zoom: this.zoom,
+                    timestamp: Date.now()
                 };
+                localStorage.setItem('quoteBuilderState', JSON.stringify(state));
+            } catch (error) {
+                console.warn('Error saving state:', error);
+            }
+        },
+        
+        clearCanvas() {
+            if (this.placedBlocks.length > 0 && confirm('¿Limpiar toda la cotización? Esta acción no se puede deshacer.')) {
+                this.placedBlocks = [];
+                this.saveToHistory();
+                this.showToast('Canvas limpiado', 'info');
+            }
+        },
+        
+        // Formateo
+        formatCurrency(value) {
+            return new Intl.NumberFormat('es-MX', {
+                style: 'currency',
+                currency: 'MXN',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value || 0);
+        },
+        
+        // Métodos para citas
+        formatDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-MX', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        },
+        
+        formatAppointmentDate(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-MX', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        },
+        
+        formatDateForStorage(fecha, hora) {
+            if (!fecha || !hora) return '';
+            const date = new Date(fecha);
+            // Formato: dd/mm/yy
+            const formattedDate = date.toLocaleDateString('es-MX', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit'
+            }).replace(/\//g, '/');
+            
+            return `${formattedDate};${hora}`;
+        },
+        
+        async loadAvailableTimes() {
+            if (!this.appointmentForm.fecha) return;
+            
+            this.appointmentError = '';
+            this.availableTimeSlots = [];
+            this.appointmentForm.hora = '';
+            this.isLoadingTimes = true;
+            
+            // Validar que la fecha esté en el rango permitido
+            const selectedDate = new Date(this.appointmentForm.fecha);
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() + 28);
+            
+            today.setHours(0, 0, 0, 0);
+            maxDate.setHours(0, 0, 0, 0);
+            
+            if (selectedDate < today) {
+                this.appointmentError = 'No se pueden agendar citas en fechas pasadas';
+                this.isLoadingTimes = false;
+                return;
+            }
+            
+            if (selectedDate > maxDate) {
+                this.appointmentError = 'No se pueden agendar citas con más de 4 semanas de anticipación';
+                this.isLoadingTimes = false;
+                return;
+            }
+            
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
                 
-                this.history.push(state);
-                this.historyIndex = this.history.length - 1;
-            },
-            
-            undo() {
-                if (this.historyIndex > 0) {
-                    this.historyIndex--;
-                    const state = this.history[this.historyIndex];
-                    this.placedBlocks = JSON.parse(JSON.stringify(state.placedBlocks));
-                    this.zoom = state.zoom;
-                    this.updateCanvasZoom();
-                    this.showToast('Cambio deshecho', 'info');
-                }
-            },
-            
-            redo() {
-                if (this.historyIndex < this.history.length - 1) {
-                    this.historyIndex++;
-                    const state = this.history[this.historyIndex];
-                    this.placedBlocks = JSON.parse(JSON.stringify(state.placedBlocks));
-                    this.zoom = state.zoom;
-                    this.updateCanvasZoom();
-                    this.showToast('Cambio rehecho', 'info');
-                }
-            },
-            
-            // Interact.js con zoom en cuenta
-            setupInteractJS() {
-                const canvas = document.getElementById('construction-canvas');
-                if (!canvas || !interact) return;
-                
-                interact('.draggable-block', {
-                    context: canvas
-                }).draggable({
-                    listeners: {
-                        start: (event) => {
-                            const instanceId = event.target.getAttribute('data-instance-id');
-                            const block = this.placedBlocks.find(b => b.instanceId === instanceId);
-                            if (block) {
-                                block.isDragging = true;
-                                block.zIndex = 100 + this.placedBlocks.length;
-                            }
-                        },
-                        move: (event) => {
-                            const instanceId = event.target.getAttribute('data-instance-id');
-                            const block = this.placedBlocks.find(b => b.instanceId === instanceId);
-                            if (block) {
-                                // Ajustar movimiento por el zoom
-                                block.x += event.dx / this.zoom;
-                                block.y += event.dy / this.zoom;
-                                
-                                // Mantener dentro del canvas
-                                const maxX = 2000 - 260;
-                                const maxY = 2000 - 120;
-                                
-                                block.x = Math.max(0, Math.min(block.x, maxX));
-                                block.y = Math.max(0, Math.min(block.y, maxY));
-                            }
-                        },
-                        end: (event) => {
-                            const instanceId = event.target.getAttribute('data-instance-id');
-                            const block = this.placedBlocks.find(b => b.instanceId === instanceId);
-                            if (block) {
-                                block.isDragging = false;
-                                block.zIndex = 10;
-                                this.saveToHistory();
-                            }
-                        }
+                const response = await fetch(`/quotes/submit-with-appointment=${this.appointmentForm.fecha}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
                     }
                 });
-            },
-            
-            // Atajos de teclado
-            setupKeyboardShortcuts() {
-                document.addEventListener('keydown', (event) => {
-                    if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
-                        event.preventDefault();
-                        this.undo();
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    this.availableTimeSlots = result.horarios_disponibles || [];
+                    
+                    if (this.availableTimeSlots.length === 0) {
+                        this.appointmentError = 'No hay horarios disponibles para esta fecha';
                     }
-                    if ((event.ctrlKey || event.metaKey) && (event.key === 'y' || (event.key === 'z' && event.shiftKey))) {
-                        event.preventDefault();
-                        this.redo();
-                    }
-                });
-            },
-            
-            // Guardado automático
-            setupAutoSave() {
-                setInterval(() => {
-                    if (this.placedBlocks.length > 0) {
-                        this.saveState();
-                    }
-                }, 30000);
-            },
-            
-            loadSavedState() {
-                try {
-                    const saved = localStorage.getItem('quoteBuilderState');
-                    if (saved) {
-                        const state = JSON.parse(saved);
-                        this.placedBlocks = state.placedBlocks || [];
-                        this.zoom = state.zoom || 1;
-                        this.updateCanvasZoom();
-                        
-                        // Recalcular precios
-                        this.placedBlocks.forEach(block => this.updateBlockPrice(block));
-                    }
-                } catch (error) {
-                    console.warn('Error loading saved state:', error);
+                } else {
+                    this.appointmentError = result.message || 'Error al cargar horarios';
                 }
-            },
+            } catch (error) {
+                console.error('Error loading available times:', error);
+                this.appointmentError = 'Error de conexión';
+                this.availableTimeSlots = [];
+            } finally {
+                this.isLoadingTimes = false;
+            }
+        },
+        
+        // Toasts
+        showToast(message, type = 'info') {
+            const container = document.querySelector('.toast-container');
+            if (!container) return;
             
-            saveState() {
-                try {
-                    const state = {
-                        placedBlocks: this.placedBlocks,
-                        zoom: this.zoom,
-                        timestamp: Date.now()
-                    };
-                    localStorage.setItem('quoteBuilderState', JSON.stringify(state));
-                } catch (error) {
-                    console.warn('Error saving state:', error);
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="flex-1">
+                    <div class="text-xs font-medium">${message}</div>
+                </div>
+                <button class="text-gray-400 hover:text-gray-600 text-xs" onclick="this.parentElement.remove()">
+                    ✕
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
                 }
-            },
+            }, 4000);
+        },
+        
+        // Funciones de envío mejoradas con citas
+        async submitQuote() {
+            console.log('Iniciando submitQuote...');
+            console.log('Datos del cliente:', this.clientForm);
+            console.log('Datos de cita:', this.appointmentForm);
             
-            clearCanvas() {
-                if (this.placedBlocks.length > 0 && confirm('¿Limpiar toda la cotización? Esta acción no se puede deshacer.')) {
-                    this.placedBlocks = [];
-                    this.saveToHistory();
-                    this.showToast('Canvas limpiado', 'info');
-                }
-            },
+            if (!this.clientForm.name || !this.clientForm.email) {
+                this.showToast('Completa los campos requeridos', 'error');
+                return;
+            }
             
-            // Formateo
-            formatCurrency(value) {
-                return new Intl.NumberFormat('es-MX', {
-                    style: 'currency',
-                    currency: 'MXN',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                }).format(value || 0);
-            },
-            
-            // Toasts
-            showToast(message, type = 'info') {
-                const container = document.querySelector('.toast-container');
-                if (!container) return;
-                
-                const toast = document.createElement('div');
-                toast.className = `toast toast-${type}`;
-                toast.innerHTML = `
-                    <div class="flex-1">
-                        <div class="text-xs font-medium">${message}</div>
-                    </div>
-                    <button class="text-gray-400 hover:text-gray-600 text-xs" onclick="this.parentElement.remove()">
-                        ✕
-                    </button>
-                `;
-                
-                container.appendChild(toast);
-                
-                setTimeout(() => {
-                    if (toast.parentElement) {
-                        toast.remove();
-                    }
-                }, 4000);
-            },
-            
-            // Funciones de envío mejoradas
-            async submitQuote() {
-                console.log('Iniciando submitQuote...');
-                console.log('Datos del cliente:', this.clientForm);
-                console.log('Bloques colocados:', this.placedBlocks.length);
-                
-                if (!this.clientForm.name || !this.clientForm.email) {
-                    this.showToast('Completa los campos requeridos', 'error');
+            // Validar cita si está confirmada
+            if (this.showAppointmentSection && this.appointmentForm.confirmar) {
+                if (!this.appointmentForm.fecha || !this.appointmentForm.hora) {
+                    this.showToast('Selecciona fecha y hora para la cita', 'error');
                     return;
                 }
-                
-                this.isSubmitting = true;
-                
-                try {
-                    console.log('Preparando datos para enviar...');
-                    
-                    // Preparar datos para enviar
-                    const quoteData = {
-                        client: {
-                            name: this.clientForm.name,
-                            email: this.clientForm.email,
-                            phone: this.clientForm.phone || '',
-                            company: this.clientForm.company || '',
-                            additional_requirements: this.clientForm.notes || ''
-                        },
-                        blocks: this.placedBlocks.map(block => {
-                            console.log('Procesando bloque:', block.name);
-                            return {
-                                id: block.id,
-                                name: block.name,
-                                type: block.type,
-                                quantity: block.quantity || 1,
-                                hours: block.hours || block.default_hours || 20,
-                                base_price: block.base_price || 0,
-                                total_price: block.totalPrice || 0,
-                                totalPrice: block.totalPrice || 0, // mantener ambos por compatibilidad
-                                description: block.description || '',
-                                config: block.config || {},
-                                data: {
-                                    modality: block.modality,
-                                    difficulty: block.difficulty,
-                                    participants: block.participants,
-                                    complexity: block.complexity,
-                                    integrations: block.integrations,
-                                    scope: block.scope,
-                                    systems: block.systems,
-                                    service_level: block.service_level,
-                                    frequency: block.frequency
-                                }
-                            };
-                        }),
-                        summary: {
-                            subtotal: this.subtotal,
-                            tax: this.totalTax,
-                            total: this.totalCost,
-                            hours: this.totalHours
-                        }
-                    };
-                    
-                    console.log('Datos a enviar:', JSON.stringify(quoteData, null, 2));
-                    
-                    // Obtener token CSRF
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                    console.log('CSRF Token:', csrfToken ? 'Presente' : 'Faltante');
-                    
-                    // Enviar a tu API Laravel
-                    console.log('Enviando a /api/quotes/submit...');
-                    const response = await fetch('/api/quotes/submit', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        body: JSON.stringify(quoteData)
-                    });
-                    
-                    console.log('Response status:', response.status);
-                    console.log('Response OK:', response.ok);
-                    
-                    const result = await response.json();
-                    console.log('Resultado del servidor:', result);
-                    
-                    if (!response.ok || !result.success) {
-                        throw new Error(result.message || 'Error al enviar la cotización');
-                    }
-                    
-                    // Actualizar con datos reales del servidor
-                    this.quoteReference = result.reference || this.quoteReference;
-                    this.pdfGenerated = true;
-                    
-                    // Mostrar éxito
-                    this.showSubmitModal = false;
-                    this.showSuccessModal = true;
-                    
-                    // Limpiar formulario
-                    this.clientForm = {
-                        name: '',
-                        email: '',
-                        phone: '',
-                        company: '',
-                        notes: ''
-                    };
-                    
-                    this.showToast(result.message || 'Cotización enviada exitosamente', 'success');
-                    
-                } catch (error) {
-                    console.error('Error completo en submitQuote:', error);
-                    console.error('Error stack:', error.stack);
-                    this.showToast(error.message || 'Error al enviar la cotización', 'error');
-                } finally {
-                    this.isSubmitting = false;
-                }
-            },
+            }
             
-            saveQuoteToHistory() {
-                try {
-                    const quoteHistory = JSON.parse(localStorage.getItem('quoteHistory') || '[]');
-                    
-                    const quote = {
-                        id: this.quoteReference,
-                        date: new Date().toISOString(),
-                        client: { ...this.clientForm },
-                        total: this.totalCost,
-                        services: this.placedBlocks.map(b => ({
-                            name: b.name,
-                            quantity: b.quantity,
-                            price: b.totalPrice
-                        }))
-                    };
-                    
-                    quoteHistory.unshift(quote);
-                    if (quoteHistory.length > 50) quoteHistory.pop();
-                    
-                    localStorage.setItem('quoteHistory', JSON.stringify(quoteHistory));
-                } catch (error) {
-                    console.warn('Error saving quote to history:', error);
-                }
-            },
+            this.isSubmitting = true;
             
-            async exportPDF() {
-                if (this.placedBlocks.length === 0) {
-                    this.showToast('Agrega servicios primero', 'warning');
-                    return;
-                }
+            try {
+                console.log('Preparando datos para enviar...');
                 
-                this.isExportingPDF = true;
-                
-                try {
-                    // Primero guardar como borrador en la BD
-                    await this.saveDraft();
-                    
-                    // Luego generar PDF
-                    await this.generatePDF(false);
-                    
-                    this.showToast('PDF generado exitosamente', 'success');
-                } catch (error) {
-                    console.error('Error generating PDF:', error);
-                    this.showToast('Error al generar PDF', 'error');
-                } finally {
-                    this.isExportingPDF = false;
-                }
-            },
-
-            async saveDraft() {
-                // Solo guardar si hay datos de cliente
-                if (!this.clientForm.name && !this.clientForm.email) {
-                    return; // No guardar si no hay datos mínimos
-                }
-                
-                try {
-                    const quoteData = {
-                        client: {
-                            name: this.clientForm.name || 'Cliente no identificado',
-                            email: this.clientForm.email || '',
-                            phone: this.clientForm.phone || '',
-                            company: this.clientForm.company || ''
-                        },
-                        blocks: this.placedBlocks.map(block => ({
+                // Preparar datos para enviar
+                const quoteData = {
+                    client: {
+                        name: this.clientForm.name,
+                        email: this.clientForm.email,
+                        phone: this.clientForm.phone || '',
+                        company: this.clientForm.company || '',
+                        additional_requirements: this.clientForm.notes || ''
+                    },
+                    blocks: this.placedBlocks.map(block => {
+                        console.log('Procesando bloque:', block.name);
+                        return {
                             id: block.id,
                             name: block.name,
-                            quantity: block.quantity,
-                            total_price: block.totalPrice
-                        })),
-                        summary: {
-                            total: this.totalCost
-                        }
+                            type: block.type,
+                            quantity: block.quantity || 1,
+                            hours: block.hours || block.default_hours || 20,
+                            base_price: block.base_price || 0,
+                            total_price: block.totalPrice || 0,
+                            totalPrice: block.totalPrice || 0,
+                            description: block.description || '',
+                            config: block.config || {},
+                            data: {}
+                        };
+                    }),
+                    summary: {
+                        subtotal: this.subtotal,
+                        tax: this.totalTax,
+                        total: this.totalCost,
+                        hours: this.totalHours
+                    }
+                };
+                
+                // Incluir cita si está confirmada
+                if (this.showAppointmentSection && this.appointmentForm.confirmar) {
+                    quoteData.appointment = {
+                        fecha: this.appointmentForm.fecha,
+                        hora: this.appointmentForm.hora,
+                        formato: `[{${this.formatDateForStorage(this.appointmentForm.fecha, this.appointmentForm.hora)}}]`
                     };
-                    
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                    
-                    const response = await fetch('/api/quotes/save-draft', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        body: JSON.stringify(quoteData)
-                    });
-                    
-                    if (!response.ok) {
-                        console.warn('Error saving draft:', await response.text());
-                    }
-                } catch (error) {
-                    console.warn('Error saving draft:', error);
-                }
-            },
-            
-            async generatePDF(silent = false) {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                // Configuración de márgenes
-                const margin = 20;
-                let y = margin;
-                
-                // Encabezado
-                doc.setFontSize(20);
-                doc.text('COTIZACIÓN PROFESIONAL', 105, y, { align: 'center' });
-                y += 15;
-                
-                // Información de referencia
-                this.quoteReference = this.quoteReference || 'DMI-' + Date.now().toString().substr(-6);
-                doc.setFontSize(10);
-                doc.text(`Referencia: ${this.quoteReference}`, margin, y);
-                doc.text(`Fecha: ${new Date().toLocaleDateString('es-MX')}`, margin, y + 6);
-                doc.text(`Página: 1/1`, 200 - margin, y, { align: 'right' });
-                y += 15;
-                
-                // Línea separadora
-                doc.setDrawColor(200, 200, 200);
-                doc.line(margin, y, 200 - margin, y);
-                y += 10;
-                
-                // Información del cliente
-                if (this.clientForm.name || this.clientForm.company) {
-                    doc.setFontSize(12);
-                    doc.text('INFORMACIÓN DEL CLIENTE', margin, y);
-                    y += 8;
-                    
-                    doc.setFontSize(10);
-                    if (this.clientForm.name) {
-                        doc.text(`Nombre: ${this.clientForm.name}`, margin, y);
-                        y += 6;
-                    }
-                    if (this.clientForm.company) {
-                        doc.text(`Empresa: ${this.clientForm.company}`, margin, y);
-                        y += 6;
-                    }
-                    if (this.clientForm.email) {
-                        doc.text(`Email: ${this.clientForm.email}`, margin, y);
-                        y += 6;
-                    }
-                    if (this.clientForm.phone) {
-                        doc.text(`Teléfono: ${this.clientForm.phone}`, margin, y);
-                        y += 6;
-                    }
-                    y += 8;
                 }
                 
-                // Tabla de servicios
-                doc.setFontSize(12);
-                doc.text('DETALLE DE SERVICIOS', margin, y);
-                y += 10;
+                console.log('Datos a enviar:', quoteData);
                 
-                // Encabezados de tabla
-                doc.setFontSize(10);
-                doc.setFillColor(240, 240, 240);
-                const colWidths = [100, 20, 20, 30];
-                const colPositions = [margin, margin + colWidths[0], margin + colWidths[0] + colWidths[1], margin + colWidths[0] + colWidths[1] + colWidths[2]];
+                // Obtener token CSRF
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                console.log('CSRF Token:', csrfToken ? 'Presente' : 'Faltante');
                 
-                doc.rect(colPositions[0], y, colWidths[0], 8, 'F');
-                doc.rect(colPositions[1], y, colWidths[1], 8, 'F');
-                doc.rect(colPositions[2], y, colWidths[2], 8, 'F');
-                doc.rect(colPositions[3], y, colWidths[3], 8, 'F');
+                // Enviar a tu API Laravel
+                console.log('Enviando a /api/quotes/submit...');
+                const response = await fetch('/api/quotes/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify(quoteData)
+                });
                 
-                doc.text('Descripción', colPositions[0] + 2, y + 6);
-                doc.text('Cant.', colPositions[1] + 2, y + 6);
-                doc.text('Horas', colPositions[2] + 2, y + 6);
-                doc.text('Precio', colPositions[3] + 2, y + 6);
+                console.log('Response status:', response.status);
+                console.log('Response OK:', response.ok);
                 
-                y += 8;
+                const result = await response.json();
+                console.log('Resultado del servidor:', result);
                 
-                // Servicios
-                let rowHeight = 8;
-                for (let block of this.placedBlocks) {
-                    // Verificar si necesitamos nueva página
-                    if (y > 250) {
-                        doc.addPage();
-                        y = margin;
-                    }
-                    
-                    // Descripción
-                    doc.text(block.name.substring(0, 30), colPositions[0] + 2, y + 6);
-                    doc.text(block.quantity.toString(), colPositions[1] + 2, y + 6);
-                    doc.text(block.hours.toString(), colPositions[2] + 2, y + 6);
-                    doc.text(this.formatCurrency(block.totalPrice), colPositions[3] + 2, y + 6);
-                    y += rowHeight;
-                    
-                    // Descripción adicional si cabe
-                    if (block.description && y <= 250) {
-                        doc.text(`  ${block.description.substring(0, 40)}`, colPositions[0] + 2, y + 6);
-                        y += rowHeight;
-                    }
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Error al enviar la cotización');
                 }
                 
-                // Totales
-                y += 10;
-                doc.setDrawColor(200, 200, 200);
-                doc.line(colPositions[3], y, colPositions[3] + colWidths[3], y);
-                y += 5;
+                // Actualizar con datos reales del servidor
+                this.quoteReference = result.reference || this.quoteReference;
+                this.pdfGenerated = true;
                 
-                doc.text('Subtotal:', colPositions[2] + 2, y + 6);
-                doc.text(this.formatCurrency(this.subtotal), colPositions[3] + 2, y + 6);
-                y += 8;
-                
-                doc.text('IVA (16%):', colPositions[2] + 2, y + 6);
-                doc.text(this.formatCurrency(this.totalTax), colPositions[3] + 2, y + 6);
-                y += 8;
-                
-                doc.setFontSize(11);
-                doc.setFont(undefined, 'bold');
-                doc.text('TOTAL:', colPositions[2] + 2, y + 6);
-                doc.text(this.formatCurrency(this.totalCost), colPositions[3] + 2, y + 6);
-                
-                // Notas
-                y += 15;
-                if (this.clientForm.notes) {
-                    doc.setFontSize(9);
-                    doc.setFont(undefined, 'normal');
-                    doc.text('Notas:', margin, y);
-                    y += 6;
-                    doc.text(this.clientForm.notes.substring(0, 150), margin, y, { maxWidth: 160 });
-                }
-                
-                // Pie de página
-                doc.setFontSize(8);
-                doc.text('Digital Market Intelligence', 105, 285, { align: 'center' });
-                doc.text('www.dmi.com.mx | contacto@dmi.com.mx', 105, 290, { align: 'center' });
-                doc.text('Esta cotización es válida por 30 días naturales', 105, 295, { align: 'center' });
-                
-                // Guardar PDF
-                const pdfBlob = doc.output('blob');
-                const url = URL.createObjectURL(pdfBlob);
-                
-                if (!silent) {
-                    // Descargar PDF
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `cotizacion-dmi-${this.quoteReference}.pdf`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
+                // Si hay cita, guardar referencia
+                if (result.cita) {
+                    this.appointmentReference = result.cita.referencia;
+                    this.showToast('¡Cotización enviada y cita agendada!', 'success');
                 } else {
-                    // Guardar para descarga posterior
-                    this.pdfUrl = url;
-                    this.pdfGenerated = true;
+                    this.showToast('Cotización enviada exitosamente', 'success');
                 }
-            },
-            
-            downloadPDF() {
-                if (this.pdfUrl) {
-                    const a = document.createElement('a');
-                    a.href = this.pdfUrl;
-                    a.download = `cotizacion-dmi-${this.quoteReference}.pdf`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                }
-            },
-            
-            startDrag(event) {
-                // Manejo por interact.js
+                
+                // Mostrar éxito
+                this.showSubmitModal = false;
+                this.showSuccessModal = true;
+                
+                // Limpiar formularios
+                this.clientForm = {
+                    name: '',
+                    email: '',
+                    phone: '',
+                    company: '',
+                    notes: ''
+                };
+                
+                // Limpiar datos de cita
+                this.appointmentForm = {
+                    fecha: '',
+                    hora: '',
+                    confirmar: false
+                };
+                this.availableTimeSlots = [];
+                this.showAppointmentSection = false;
+                
+            } catch (error) {
+                console.error('Error completo en submitQuote:', error);
+                console.error('Error stack:', error.stack);
+                this.showToast(error.message || 'Error al enviar la cotización', 'error');
+            } finally {
+                this.isSubmitting = false;
             }
+        },
+        
+        saveQuoteToHistory() {
+            try {
+                const quoteHistory = JSON.parse(localStorage.getItem('quoteHistory') || '[]');
+                
+                const quote = {
+                    id: this.quoteReference,
+                    date: new Date().toISOString(),
+                    client: { ...this.clientForm },
+                    total: this.totalCost,
+                    services: this.placedBlocks.map(b => ({
+                        name: b.name,
+                        quantity: b.quantity,
+                        price: b.totalPrice
+                    }))
+                };
+                
+                quoteHistory.unshift(quote);
+                if (quoteHistory.length > 50) quoteHistory.pop();
+                
+                localStorage.setItem('quoteHistory', JSON.stringify(quoteHistory));
+            } catch (error) {
+                console.warn('Error saving quote to history:', error);
+            }
+        },
+        
+        async exportPDF() {
+            if (this.placedBlocks.length === 0) {
+                this.showToast('Agrega servicios primero', 'warning');
+                return;
+            }
+            
+            this.isExportingPDF = true;
+            
+            try {
+                // Primero guardar como borrador en la BD
+                await this.saveDraft();
+                
+                // Luego generar PDF
+                await this.generatePDF(false);
+                
+                this.showToast('PDF generado exitosamente', 'success');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                this.showToast('Error al generar PDF', 'error');
+            } finally {
+                this.isExportingPDF = false;
+            }
+        },
+
+        async saveDraft() {
+            // Solo guardar si hay datos de cliente
+            if (!this.clientForm.name && !this.clientForm.email) {
+                return; // No guardar si no hay datos mínimos
+            }
+            
+            try {
+                const quoteData = {
+                    client: {
+                        name: this.clientForm.name || 'Cliente no identificado',
+                        email: this.clientForm.email || '',
+                        phone: this.clientForm.phone || '',
+                        company: this.clientForm.company || ''
+                    },
+                    blocks: this.placedBlocks.map(block => ({
+                        id: block.id,
+                        name: block.name,
+                        quantity: block.quantity,
+                        total_price: block.totalPrice
+                    })),
+                    summary: {
+                        total: this.totalCost
+                    }
+                };
+                
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                
+                const response = await fetch('/api/quotes/save-draft', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify(quoteData)
+                });
+                
+                if (!response.ok) {
+                    console.warn('Error saving draft:', await response.text());
+                }
+            } catch (error) {
+                console.warn('Error saving draft:', error);
+            }
+        },
+        
+        async generatePDF(silent = false) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Configuración de márgenes
+            const margin = 20;
+            let y = margin;
+            
+            // Encabezado
+            doc.setFontSize(20);
+            doc.text('COTIZACIÓN PROFESIONAL', 105, y, { align: 'center' });
+            y += 15;
+            
+            // Información de referencia
+            this.quoteReference = this.quoteReference || 'DMI-' + Date.now().toString().substr(-6);
+            doc.setFontSize(10);
+            doc.text(`Referencia: ${this.quoteReference}`, margin, y);
+            doc.text(`Fecha: ${new Date().toLocaleDateString('es-MX')}`, margin, y + 6);
+            doc.text(`Página: 1/1`, 200 - margin, y, { align: 'right' });
+            y += 15;
+            
+            // Línea separadora
+            doc.setDrawColor(200, 200, 200);
+            doc.line(margin, y, 200 - margin, y);
+            y += 10;
+            
+            // Información del cliente
+            if (this.clientForm.name || this.clientForm.company) {
+                doc.setFontSize(12);
+                doc.text('INFORMACIÓN DEL CLIENTE', margin, y);
+                y += 8;
+                
+                doc.setFontSize(10);
+                if (this.clientForm.name) {
+                    doc.text(`Nombre: ${this.clientForm.name}`, margin, y);
+                    y += 6;
+                }
+                if (this.clientForm.company) {
+                    doc.text(`Empresa: ${this.clientForm.company}`, margin, y);
+                    y += 6;
+                }
+                if (this.clientForm.email) {
+                    doc.text(`Email: ${this.clientForm.email}`, margin, y);
+                    y += 6;
+                }
+                if (this.clientForm.phone) {
+                    doc.text(`Teléfono: ${this.clientForm.phone}`, margin, y);
+                    y += 6;
+                }
+                y += 8;
+            }
+            
+            // Tabla de servicios
+            doc.setFontSize(12);
+            doc.text('DETALLE DE SERVICIOS', margin, y);
+            y += 10;
+            
+            // Encabezados de tabla
+            doc.setFontSize(10);
+            doc.setFillColor(240, 240, 240);
+            const colWidths = [100, 20, 20, 30];
+            const colPositions = [margin, margin + colWidths[0], margin + colWidths[0] + colWidths[1], margin + colWidths[0] + colWidths[1] + colWidths[2]];
+            
+            doc.rect(colPositions[0], y, colWidths[0], 8, 'F');
+            doc.rect(colPositions[1], y, colWidths[1], 8, 'F');
+            doc.rect(colPositions[2], y, colWidths[2], 8, 'F');
+            doc.rect(colPositions[3], y, colWidths[3], 8, 'F');
+            
+            doc.text('Descripción', colPositions[0] + 2, y + 6);
+            doc.text('Cant.', colPositions[1] + 2, y + 6);
+            doc.text('Horas', colPositions[2] + 2, y + 6);
+            doc.text('Precio', colPositions[3] + 2, y + 6);
+            
+            y += 8;
+            
+            // Servicios
+            let rowHeight = 8;
+            for (let block of this.placedBlocks) {
+                // Verificar si necesitamos nueva página
+                if (y > 250) {
+                    doc.addPage();
+                    y = margin;
+                }
+                
+                // Descripción
+                doc.text(block.name.substring(0, 30), colPositions[0] + 2, y + 6);
+                doc.text(block.quantity.toString(), colPositions[1] + 2, y + 6);
+                doc.text(block.hours.toString(), colPositions[2] + 2, y + 6);
+                doc.text(this.formatCurrency(block.totalPrice), colPositions[3] + 2, y + 6);
+                y += rowHeight;
+                
+                // Descripción adicional si cabe
+                if (block.description && y <= 250) {
+                    doc.text(`  ${block.description.substring(0, 40)}`, colPositions[0] + 2, y + 6);
+                    y += rowHeight;
+                }
+            }
+            
+            // Totales
+            y += 10;
+            doc.setDrawColor(200, 200, 200);
+            doc.line(colPositions[3], y, colPositions[3] + colWidths[3], y);
+            y += 5;
+            
+            doc.text('Subtotal:', colPositions[2] + 2, y + 6);
+            doc.text(this.formatCurrency(this.subtotal), colPositions[3] + 2, y + 6);
+            y += 8;
+            
+            doc.text('IVA (16%):', colPositions[2] + 2, y + 6);
+            doc.text(this.formatCurrency(this.totalTax), colPositions[3] + 2, y + 6);
+            y += 8;
+            
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text('TOTAL:', colPositions[2] + 2, y + 6);
+            doc.text(this.formatCurrency(this.totalCost), colPositions[3] + 2, y + 6);
+            
+            // Notas
+            y += 15;
+            if (this.clientForm.notes) {
+                doc.setFontSize(9);
+                doc.setFont(undefined, 'normal');
+                doc.text('Notas:', margin, y);
+                y += 6;
+                doc.text(this.clientForm.notes.substring(0, 150), margin, y, { maxWidth: 160 });
+            }
+            
+            // Pie de página
+            doc.setFontSize(8);
+            doc.text('Digital Market Intelligence', 105, 285, { align: 'center' });
+            doc.text('www.dmi.com.mx | contacto@dmi.com.mx', 105, 290, { align: 'center' });
+            doc.text('Esta cotización es válida por 30 días naturales', 105, 295, { align: 'center' });
+            
+            // Guardar PDF
+            const pdfBlob = doc.output('blob');
+            const url = URL.createObjectURL(pdfBlob);
+            
+            if (!silent) {
+                // Descargar PDF
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `cotizacion-dmi-${this.quoteReference}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else {
+                // Guardar para descarga posterior
+                this.pdfUrl = url;
+                this.pdfGenerated = true;
+            }
+        },
+        
+        downloadPDF() {
+            if (this.pdfUrl) {
+                const a = document.createElement('a');
+                a.href = this.pdfUrl;
+                a.download = `cotizacion-dmi-${this.quoteReference}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        },
+        
+        startDrag(event) {
+            // Manejo por interact.js
         }
     }
+}
 </script>
 </body>
 </html>

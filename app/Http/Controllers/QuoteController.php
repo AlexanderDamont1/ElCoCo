@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Quote;
 use App\Models\QuoteItem; // IMPORTANTE: Agrega esta línea
 use App\Models\QuoteBlock;
+use App\Models\QuoteReply;
 use App\Services\QuotePdfService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\QuoteBlockCategory;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Mail\QuoteReplyMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class QuoteController extends Controller
@@ -174,41 +176,47 @@ public function builder()
         ]);
     }
 
-    public function index(Request $request)
-{
-    $query = Quote::query();
+        public function index(Request $request)
+    {
+        $query = Quote::query();
 
-    // 🔍 Filtro por estado (opcional pero sabroso)
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
+        // 🔍 Filtro por estado (opcional pero sabroso)
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // 🔎 Búsqueda por cliente o referencia
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function($sub) use ($q) {
+                $sub->where('client_name', 'like', "%$q%")
+                    ->orWhere('client_email', 'like', "%$q%")
+                    ->orWhere('reference', 'like', "%$q%");
+            });
+        }
+
+        $quotes = $query
+            ->withCount('items')
+            ->orderByDesc('created_at')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.quotes.index', compact('quotes'));
     }
 
-    // 🔎 Búsqueda por cliente o referencia
-    if ($request->filled('q')) {
-        $q = $request->q;
-        $query->where(function($sub) use ($q) {
-            $sub->where('client_name', 'like', "%$q%")
-                ->orWhere('client_email', 'like', "%$q%")
-                ->orWhere('reference', 'like', "%$q%");
-        });
-    }
 
-    $quotes = $query
-        ->withCount('items')
-        ->orderByDesc('created_at')
-        ->paginate(15)
-        ->withQueryString();
+        public function show(Quote $quote)
+        {
+            $quote->load([
+                'items.block',
+                'replies' => function ($q) {
+                    $q->orderBy('sent_at', 'desc');
+                },
+            ]);
 
-    return view('admin.quotes.index', compact('quotes'));
-}
-public function show(Quote $quote)
-{
-    $quote->load([
-        'items.block',
-    ]);
+            return view('admin.quotes.show', compact('quote'));
+        }
 
-    return view('admin.quotes.show', compact('quote'));
-}
 
     public function submit(Request $request)
     {
@@ -308,4 +316,38 @@ public function show(Quote $quote)
             'items_count' => count($blocks)
         ]);
     }
+
+    public function reply(Request $request, Quote $quote)
+{
+    session()->forget('_old_input');
+
+    $validator = Validator::make($request->all(), [
+        'message' => 'required|string|min:3',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()
+            ->route('admin.quotes.show', $quote->id)
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    $message = trim($request->message);
+
+    Mail::to($quote->client_email)
+        ->send(new QuoteReplyMail($quote, $message));
+
+    QuoteReply::create([
+        'quote_id' => $quote->id,
+        'message' => $message,
+        'sent_to_email' => $quote->client_email,
+        'sent_at' => now(),
+    ]);
+
+    return redirect()
+        ->route('admin.quotes.show', $quote->id)
+        ->with('success', 'Respuesta enviada correctamente.');
+}
+
+
 }
