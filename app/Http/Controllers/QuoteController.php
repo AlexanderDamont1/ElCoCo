@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\QuoteBlockCategory;
 use App\Mail\QuoteReplyMail;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -317,37 +318,87 @@ public function builder()
         ]);
     }
 
+
+
+
     public function reply(Request $request, Quote $quote)
 {
-    session()->forget('_old_input');
-
-    $validator = Validator::make($request->all(), [
-        'message' => 'required|string|min:3',
+    $request->validate([
+        'meeting_date' => 'required|date',
     ]);
 
-    if ($validator->fails()) {
-        return redirect()
-            ->route('admin.quotes.show', $quote->id)
-            ->withErrors($validator)
-            ->withInput();
-    }
+    $meetingDate = $request->input('meeting_date');
 
-    $message = trim($request->message);
+    $messageText = $this->formatMeetingMessage($meetingDate);
 
-    Mail::to($quote->client_email)
-        ->send(new QuoteReplyMail($quote, $message));
+    // Guarda la cita con la fecha enviada
+    $this->saveQuoteReply($quote, $messageText, $meetingDate);
 
-    QuoteReply::create([
-        'quote_id' => $quote->id,
-        'message' => $message,
-        'sent_to_email' => $quote->client_email,
-        'sent_at' => now(),
-    ]);
+    $pdfContent = $this->generateQuotePdf($quote);
+
+    $pdfPath = 'quotes/' . $quote->reference . '.pdf';
+    Storage::disk('public')->put($pdfPath, $pdfContent);
+
+    $this->sendQuoteEmail($quote, $messageText, $pdfPath);
 
     return redirect()
         ->route('admin.quotes.show', $quote->id)
-        ->with('success', 'Respuesta enviada correctamente.');
+        ->with('success', 'Cita guardada y correo enviado con cotización adjunta.');
+}
+
+private function saveQuoteReply(Quote $quote, string $message, string $meetingDate)
+{
+    QuoteReply::create([
+        'quote_id' => $quote->id,
+       // 'message' => $message,
+        'sent_at' => $meetingDate,  // Aquí guardas la fecha exacta de la cita
+    ]);
 }
 
 
+    private function formatMeetingMessage(string $meetingDate): string
+    {
+        $date = new \DateTime($meetingDate);
+        $formattedDate = $date->format('d/m/Y H:i');
+        return "Cita Virtual en GoogleMeet: $formattedDate";
+    }
+
+
+    private function generateQuotePdf(Quote $quote): string
+    {
+        $data = [
+            'client' => [
+                'name' => $quote->client_name,
+                'email' => $quote->client_email,
+                'company' => $quote->client_company,
+                'phone' => $quote->client_phone,
+            ],
+            'blocks' => $quote->items->map(function ($item) {
+                return [
+                    'name' => $item->name,
+                    'description' => $item->description,
+                    'hours' => (int) $item->hours,
+                    'base_price' => (float) $item->unit_price,
+                    'total_price' => (float) $item->total_price,
+                ];
+            })->toArray(),
+            'summary' => [
+                'subtotal' => (float) $quote->subtotal,
+                'tax' => (float) $quote->tax,
+                'total' => (float) $quote->total,
+            ],
+        ];
+
+        return Pdf::loadView('quotes.pdf.cotizacion', compact('data'))
+            ->setPaper('a4')
+            ->output();
+    }
+
+    private function sendQuoteEmail(Quote $quote, string $message, string $pdfPath)
+    {
+        Mail::to($quote->client_email)->send(new QuoteReplyMail($quote, $message, $pdfPath));
+    }
 }
+
+
+

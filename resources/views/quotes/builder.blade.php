@@ -1434,19 +1434,7 @@
             </div>
             
             <div class="summary-actions">
-                <button 
-                    class="btn btn-secondary"
-                    @click="exportPDF()"
-                    :disabled="isExportingPDF || placedBlocks.length === 0"
-                    :class="{ 'opacity-50': isExportingPDF }"
-                    title="Exportar PDF"
-                    aria-label="Exportar PDF"
-                >
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span x-text="isExportingPDF ? 'Generando...' : 'Exportar PDF'"></span>
-                </button>
+               
                 <button 
                     class="btn btn-primary"
                     @click="showSubmitModal = true"
@@ -1586,50 +1574,39 @@
 
     <!-- Modal de éxito -->
     <div 
-        x-show="showSuccessModal"
-        x-transition
-        class="modal-overlay"
-    >
-        <div class="modal-content">
-            <div class="p-6 text-center">
-                <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                
-                <h2 class="text-xl font-semibold text-gray-900 mb-2">¡Cotización enviada!</h2>
-                <p class="text-gray-600 text-sm mb-4">
-                    Hemos recibido tu solicitud. Te contactaremos en menos de 24 horas.
-                </p>
-                
-                <div class="bg-gray-50 rounded-lg p-3 mb-4">
-                    <div class="text-xs text-gray-600 mb-1">Número de referencia:</div>
-                    <div class="font-mono font-semibold text-accent text-base" x-text="'DMI-' + quoteReference"></div>
-                </div>
-                
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <button 
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="downloadPDF()"
-                        x-show="pdfGenerated"
-                    >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Descargar PDF
-                    </button>
-                    <a 
-                        href="/"
-                        class="btn btn-primary"
-                    >
-                        Volver al inicio
-                    </a>
-                </div>
+    x-show="showSuccessModal"
+    x-transition
+    class="modal-overlay">
+    <div class="modal-content">
+        <div class="p-6 text-center">
+            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            
+            <h2 class="text-xl font-semibold text-gray-900 mb-2">¡Cotización enviada!</h2>
+            <p class="text-gray-600 text-sm mb-4">
+                Hemos recibido tu solicitud. Te contactaremos en menos de 24 horas.
+            </p>
+            
+            <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                <div class="text-xs text-gray-600 mb-1">Número de referencia:</div>
+                <div class="font-mono font-semibold text-accent text-base" x-text="'DMI-' + quoteReference"></div>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-2 justify-center">
+               
+                <a 
+                    href="/"
+                    class="btn btn-primary"
+                >
+                    Volver al inicio
+                </a>
             </div>
         </div>
     </div>
+</div>
 
     <script>
     function quoteBuilder() {
@@ -2457,29 +2434,7 @@
             }
         },
         
-        async exportPDF() {
-            if (this.placedBlocks.length === 0) {
-                this.showToast('Agrega servicios primero', 'warning');
-                return;
-            }
-            
-            this.isExportingPDF = true;
-            
-            try {
-                // Primero guardar como borrador en la BD
-                await this.saveDraft();
-                
-                // Luego generar PDF
-                await this.generatePDF(false);
-                
-                this.showToast('PDF generado exitosamente', 'success');
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                this.showToast('Error al generar PDF', 'error');
-            } finally {
-                this.isExportingPDF = false;
-            }
-        },
+        
 
         async saveDraft() {
             // Solo guardar si hay datos de cliente
