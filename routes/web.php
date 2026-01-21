@@ -70,14 +70,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
    Route::put('/bloques/{quoteBlock}', [QuoteBlockController::class, 'update'])->name('bloques.update');
    
-   
+   Route::resource('bloques', QuoteBlockController::class);
    
    Route::get('/admin/cotizaciones', [QuoteController::class, 'index']) ->name('admin.quotes.index');
    
    Route::get('/admin/cotizaciones/{quote}', [QuoteController::class, 'show'])->name('admin.quotes.show');
         
    Route::patch('/admin/cotizaciones/{quote}/status', [QuoteController::class, 'updateStatus'])->name('admin.quotes.status');
-
 
    Route::post('/admin/quotes/{quote}/reply',[QuoteController::class, 'reply'])->name('admin.quotes.reply');
 

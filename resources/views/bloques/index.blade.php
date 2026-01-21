@@ -46,7 +46,7 @@
                             <span class="text-sm text-gray-500">Bloques:</span>
                             <span class="font-medium text-gray-900">{{ $categories->sum('blocks_count') }}</span>
                         </div>
-                        <a href="#" 
+                        <a href="{{ route('bloques.create') }}" 
                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -94,9 +94,7 @@
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                     Nombre
                                 </th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                                    Tipo
-                                </th>
+                                
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                     Precio Base
                                 </th>
@@ -116,10 +114,7 @@
                                         <div class="text-sm font-medium text-gray-900">{{ $block->name }}</div>
                                     </td>
                                     
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900">{{ $block->type }}</div>
-                                    </td>
-                                    
+                                   
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-semibold text-gray-900">${{ number_format($block->base_price, 2) }}</div>
                                     </td>

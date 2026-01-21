@@ -753,7 +753,7 @@
                     Empresas que Confían en Nosotros
                 </h2>
                 <p class="text-lg text-gray-600 animate-fade-up" style="animation-delay: 0.1s;">
-                    Colaboramos con organizaciones líderes que buscan innovación tecnológica y soluciones robustas.
+                    Colaboramos con organizaciones que buscan innovación tecnológica y soluciones robustas.
                 </p>
             </div>
 
@@ -764,7 +764,7 @@
                     <img 
                         src="/images/empresas/{{ $client }}.png" 
                         alt="{{ $client }}" 
-                        class="h-12 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110"
+                        class="h-20 w-auto object-contain grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110"
                         loading="lazy"
                     >
                     <div class="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

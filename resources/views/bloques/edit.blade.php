@@ -1,114 +1,82 @@
 <x-app-layout>
-    <div class="py-6">
-        <div class="max-w-4xl mx-auto px-4">
+    <div class="py-8">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <!-- Header limpio -->
+            <!-- Header mejorado -->
             <div class="mb-8">
-                <div class="flex items-center justify-between mb-4">
-                    <a href="{{ route('bloques.index') }}" 
-                       class="text-sm text-blue-600 hover:text-blue-800">
-                        ← Bloques
-                    </a>
-                </div>
-                
+                <a href="{{ route('bloques.index') }}"
+                   class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors mb-4">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Volver a Bloques
+                </a>
+
                 <div class="flex items-center justify-between">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-900">
-                            {{ isset($quoteBlock) ? 'Editar Bloque' : 'Nuevo Bloque' }}
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+                            {{ isset($quoteBlock) ? 'Editar Bloque' : 'Crear Nuevo Bloque' }}
                         </h1>
-                        <p class="text-gray-500 mt-1">
-                            {{ isset($quoteBlock) ? 'Modifica los detalles del bloque' : 'Crea un nuevo bloque para cotizaciones' }}
+                        <p class="text-gray-600 mt-1 text-sm">
+                            {{ isset($quoteBlock) ? 'Modifica la información del bloque' : 'Configura un nuevo bloque para cotizaciones' }}
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Formulario principal -->
-            <form action="{{ isset($quoteBlock) ? route('bloques.update', $quoteBlock) : '#' }}" method="POST">
+            <form
+                action="{{ isset($quoteBlock) ? route('bloques.update', $quoteBlock) : route('bloques.store') }}"
+                method="POST"
+                class="space-y-6"
+            >
                 @csrf
-                @if(isset($quoteBlock))
+                @isset($quoteBlock)
                     @method('PUT')
-                @endif
+                @endisset
 
                 <!-- Información básica -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Información básica</h2>
-                    
-                    <div class="space-y-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-6">
+                    <h2 class="text-lg font-semibold text-gray-900 pb-2 border-b border-gray-100">
+                        Información básica
+                    </h2>
+
+                    <div class="space-y-5">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                                Nombre del bloque
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Nombre del bloque *
                             </label>
-                            <input type="text" 
-                                   id="name" 
-                                   name="name" 
-                                   value="{{ old('name', $quoteBlock->name ?? '') }}" 
-                                   required
-                                   placeholder="Ej: Curso de Ofimática Avanzada"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Ej: Curso de Ofimática Avanzada"
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors text-sm"
+                                value="{{ old('name', $quoteBlock->name ?? '') }}"
+                                required
+                            >
                         </div>
-                        
+
                         <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
                                 Descripción
                             </label>
-                            <textarea id="description" 
-                                      name="description" 
-                                      rows="3"
-                                      placeholder="Describe brevemente este servicio"
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">{{ old('description', $quoteBlock->description ?? '') }}</textarea>
+                            <textarea
+                                name="description"
+                                placeholder="Describe brevemente este bloque de servicio..."
+                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors text-sm"
+                                rows="3"
+                            >{{ old('description', $quoteBlock->description ?? '') }}</textarea>
                         </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label for="base_price" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Precio base ($ MXN)
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Categoría *
                                 </label>
-                                <input type="number" 
-                                       id="base_price" 
-                                       name="base_price" 
-                                       value="{{ old('base_price', $quoteBlock->base_price ?? 0) }}" 
-                                       required
-                                       min="0"
-                                       step="0.01"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
-                            </div>
-                            
-                            <div>
-                                <label for="default_hours" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Horas por defecto
-                                </label>
-                                <input type="number" 
-                                       id="default_hours" 
-                                       name="default_hours" 
-                                       value="{{ old('default_hours', $quoteBlock->default_hours ?? 0) }}" 
-                                       required
-                                       min="0"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label for="order" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Orden de aparición
-                                </label>
-                                <input type="number" 
-                                       id="order" 
-                                       name="order" 
-                                       value="{{ old('order', $quoteBlock->order ?? 0) }}"
-                                       min="0"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
-                            </div>
-                            
-                            <div>
-                                <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">
-                                    Categoría
-                                </label>
-                                <select id="category_id"
-                                        name="category_id"
-                                        required
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
+                                <select
+                                    name="category_id"
+                                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors text-sm"
+                                    required
+                                >
                                     <option value="">Selecciona una categoría</option>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }}"
@@ -118,186 +86,212 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Orden de aparición
+                                </label>
+                                <input
+                                    type="number"
+                                    name="order"
+                                    min="0"
+                                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors text-sm"
+                                    placeholder="0"
+                                    value="{{ old('order', $quoteBlock->order ?? 0) }}"
+                                >
+                            </div>
                         </div>
-                        
-                        <div class="flex items-center">
-                            <input class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" 
-                                   type="checkbox" 
-                                   id="is_active" 
-                                   name="is_active" 
-                                   value="1"
-                                   {{ old('is_active', $quoteBlock->is_active ?? true) ? 'checked' : '' }}>
-                            <label for="is_active" class="ml-2 text-sm text-gray-700">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Precio base ($ MXN) *
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                    <input
+                                        type="number"
+                                        name="base_price"
+                                        min="0"
+                                        step="0.01"
+                                        class="w-full pl-8 pr-3 py-2.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors text-sm"
+                                        placeholder="0.00"
+                                        value="{{ old('base_price', $quoteBlock->base_price ?? 0) }}"
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Horas por defecto *
+                                </label>
+                                <input
+                                    type="number"
+                                    name="default_hours"
+                                    min="0"
+                                    class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors text-sm"
+                                    placeholder="0"
+                                    value="{{ old('default_hours', $quoteBlock->default_hours ?? 0) }}"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="flex items-center pt-2">
+                            <div class="relative">
+                                <input
+                                    type="checkbox"
+                                    id="is_active"
+                                    name="is_active"
+                                    value="1"
+                                    {{ old('is_active', $quoteBlock->is_active ?? true) ? 'checked' : '' }}
+                                    class="sr-only peer"
+                                >
+                                <div class="w-10 h-5 bg-gray-300 peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            </div>
+                            <label for="is_active" class="ml-3 text-sm text-gray-700 cursor-pointer">
                                 Bloque activo
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <!-- Campos adicionales -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Campos adicionales</h2>
-                    
-                    <div id="dynamic-fields" class="space-y-3 mb-4">
-                        @php
-                            $extras = old('extras');
-                            if (!$extras && isset($quoteBlock) && is_array($quoteBlock->config)) {
-                                $extras = [];
-                                foreach ($quoteBlock->config as $item) {
-                                    foreach ($item as $k => $v) {
-                                        $extras[] = ['key' => $k, 'value' => $v];
-                                    }
-                                }
-                            }
-                        @endphp
-
-                        @if(!empty($extras))
-                            @foreach($extras as $index => $extra)
-                                <div class="flex items-center gap-2 dynamic-row">
-                                    <input type="text"
-                                        name="extras[{{ $index }}][key]"
-                                        value="{{ $extra['key'] }}"
-                                        placeholder="Etiqueta"
-                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
-
-                                    <input type="text"
-                                        name="extras[{{ $index }}][value]"
-                                        value="{{ $extra['value'] }}"
-                                        placeholder="Valor"
-                                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
-
-                                    <button type="button"
-                                            onclick="addRow()"
-                                            class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm">
-                                        +
-                                    </button>
-
-                                    <button type="button"
-                                            onclick="removeRow(this)"
-                                            class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm">
-                                        ×
-                                    </button>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="flex items-center gap-2 dynamic-row">
-                                <input type="text"
-                                    name="extras[0][key]"
-                                    placeholder="Etiqueta"
-                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
-
-                                <input type="text"
-                                    name="extras[0][value]"
-                                    placeholder="Valor"
-                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
-
-                                <button type="button"
-                                        onclick="addRow()"
-                                        class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm">
-                                    +
-                                </button>
-
-                                <button type="button"
-                                        onclick="removeRow(this)"
-                                        class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm">
-                                    ×
-                                </button>
-                            </div>
-                        @endif
+                <!-- Extras / Configuración -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            Extras / Configuración
+                        </h2>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Opcional</span>
                     </div>
+
+                    <div id="extras-container" class="space-y-3 mb-4"></div>
+
+                    <button
+                        type="button"
+                        onclick="addExtra()"
+                        class="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors text-sm text-gray-600 hover:text-blue-700 flex items-center justify-center gap-2"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Agregar campo extra
+                    </button>
                 </div>
 
-                <!-- Botones de acción -->
-                <div class="flex justify-between items-center mt-6 pt-6 border-t border-gray-200">
-                    <a href="{{ route('bloques.index') }}" 
-                       class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm font-medium">
+                <!-- Botón de acción -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <a href="{{ route('bloques.index') }}"
+                       class="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
                         Cancelar
                     </a>
-                    
-                    <div class="flex gap-2">
-                        @if(isset($quoteBlock))
-                            <button type="button" 
-                                    onclick="confirmDelete()"
-                                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium">
-                                Eliminar
-                            </button>
-                        @endif
-                        
-                        <button type="submit" 
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
-                            {{ isset($quoteBlock) ? 'Actualizar Bloque' : 'Crear Bloque' }}
-                        </button>
-                    </div>
+
+                    <button
+                        type="submit"
+                        class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm hover:shadow inline-flex items-center gap-2"
+                    >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {{ isset($quoteBlock) ? 'Actualizar Bloque' : 'Crear Bloque' }}
+                    </button>
                 </div>
             </form>
-
-            <!-- Formulario para eliminar -->
-            @if(isset($quoteBlock))
-                <form id="delete-form" 
-                      action="#" 
-                      method="POST" 
-                      class="hidden">
-                    @csrf
-                    @method('DELETE')
-                </form>
-            @endif
-
         </div>
     </div>
 
+    <!-- Datos de extras desde backend -->
+    <div
+        id="extras-data"
+        data-extras='@json(old("extras", $quoteBlock->config ?? []))'
+        class="hidden">
+    </div>
+
     <script>
-    // Inicializar basado en las filas que ya existen en el DOM
-    let rowIndex = document.querySelectorAll('.dynamic-row').length;
-    
-    // Si no hay filas, empezar desde 1
-    if (rowIndex === 0) {
-        rowIndex = 1;
-    }
+        let extraIndex = 0;
 
-    function addRow() {
-        const container = document.getElementById('dynamic-fields');
-        const row = document.createElement('div');
-        row.classList.add('flex', 'items-center', 'gap-2', 'dynamic-row');
+        function addExtra(key = '', value = '') {
+            const container = document.getElementById('extras-container');
+            
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-2 group';
+            row.setAttribute('data-row-index', extraIndex);
 
-        row.innerHTML = `
-            <input type="text"
-                   name="extras[\${rowIndex}][key]"
-                   placeholder="Etiqueta"
-                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
+            row.innerHTML = `
+                <input
+                    type="text"
+                    name="extras[${extraIndex}][key]"
+                    value="${key}"
+                    placeholder="Etiqueta (ej: Duración, Materiales)"
+                    class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors text-sm"
+                >
+                <input
+                    type="text"
+                    name="extras[${extraIndex}][value]"
+                    value="${value}"
+                    placeholder="Valor (ej: 30 días, Incluidos)"
+                    class="flex-1 px-3 py-2.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors text-sm"
+                >
+                <button 
+                    type="button" 
+                    onclick="removeExtra(this)"
+                    class="px-3 py-2.5 bg-gray-100 text-gray-500 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                    title="Eliminar campo"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
 
-            <input type="text"
-                   name="extras[\${rowIndex}][value]"
-                   placeholder="Valor"
-                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500 text-sm">
-
-            <button type="button"
-                    onclick="addRow()"
-                    class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm">
-                +
-            </button>
-
-            <button type="button"
-                    onclick="removeRow(this)"
-                    class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm">
-                ×
-            </button>
-        `;
-
-        container.appendChild(row);
-        rowIndex++;
-    }
-
-    function removeRow(button) {
-        const row = button.closest('.dynamic-row');
-        if (document.querySelectorAll('.dynamic-row').length > 1) {
-            row.remove();
+            container.appendChild(row);
+            
+            // Enfocar el primer input si está vacío
+            if (!key) {
+                row.querySelector('input[name^="extras"]').focus();
+            }
+            
+            extraIndex++;
         }
-    }
 
-    function confirmDelete() {
-        if (confirm('¿Estás seguro de eliminar este bloque? Esta acción no se puede deshacer.')) {
-            document.getElementById('delete-form').submit();
+        function removeExtra(button) {
+            const row = button.closest('[data-row-index]');
+            if (row) {
+                row.remove();
+                
+                // Re-indexar las filas restantes
+                const rows = document.querySelectorAll('#extras-container [data-row-index]');
+                rows.forEach((row, index) => {
+                    row.setAttribute('data-row-index', index);
+                    const keyInput = row.querySelector('input[name^="extras"]');
+                    const valueInput = row.querySelector('input[name$="[value]"]');
+                    
+                    if (keyInput && valueInput) {
+                        keyInput.name = `extras[${index}][key]`;
+                        valueInput.name = `extras[${index}][value]`;
+                    }
+                });
+                
+                extraIndex = rows.length;
+            }
         }
-    }
-</script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const raw = document.getElementById('extras-data').dataset.extras;
+            const extras = JSON.parse(raw);
+
+            if (extras && extras.length) {
+                extras.forEach(item => {
+                    const key = Object.keys(item)[0];
+                    addExtra(key, item[key]);
+                });
+            } else {
+                addExtra();
+            }
+        });
+    </script>
 </x-app-layout>
