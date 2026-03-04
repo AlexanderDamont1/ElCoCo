@@ -271,14 +271,6 @@
                     </a>
                     @endforeach
                     
-                    <a href="{{ route('login') }}" 
-                       class="text-gray-700 font-medium text-sm hover:text-accent transition-all duration-300 hover:translate-x-1 flex items-center gap-2">
-                        <span>Acceso Clientes</span>
-                        <svg class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-                        </svg>
-                    </a>
-                    
                     <a href="{{ route('quote.builder') }}" 
                        class="bg-gradient-to-r from-accent to-accent-dark text-white px-6 py-2 rounded-md font-medium text-sm hover:shadow-lg hover:scale-105 transition-all duration-300 relative overflow-hidden group">
                         <span class="relative z-10 flex items-center gap-2">

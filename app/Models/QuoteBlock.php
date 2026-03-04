@@ -9,7 +9,6 @@ class QuoteBlock extends Model
     protected $fillable = [
         'name',
         'description',
-        'type',
         'category_id',
         'base_price',
         'default_hours',

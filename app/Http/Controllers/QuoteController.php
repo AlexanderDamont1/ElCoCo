@@ -118,16 +118,45 @@ public function builder()
         ]);
     }
 
-    public function generatePdf(Request $request)
-    {
-        $pdfService = new QuotePdfService();
-        $pdf = $pdfService->generate($request->all());
-
-        return response($pdf, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="cotizacion.pdf"'
-        ]);
+    public function generatePdf(Request $request, Quote $quote = null)
+{
+    // Si viene una cotización existente (desde admin), usamos sus datos.
+    // Si viene payload JSON del cotizador público, usamos el request.
+    if ($quote) {
+        $data = [
+            'client' => [
+                'name'    => $quote->client_name,
+                'email'   => $quote->client_email,
+                'company' => $quote->client_company,
+                'phone'   => $quote->client_phone,
+            ],
+            'blocks' => $quote->items->map(fn ($item) => [
+                'name'        => $item->name,
+                'description' => $item->description,
+                'hours'       => (int)   $item->hours,
+                'base_price'  => (float) $item->unit_price,
+                'total_price' => (float) $item->total_price,
+            ])->toArray(),
+            'summary' => [
+                'subtotal' => (float) $quote->subtotal,
+                'tax'      => (float) $quote->tax,
+                'total'    => (float) $quote->total,
+            ],
+        ];
+        $filename = 'cotizacion-' . $quote->reference . '.pdf';
+    } else {
+        $data     = $request->all();
+        $filename = 'cotizacion.pdf';
     }
+
+    $pdfService = new QuotePdfService();
+    $pdf = $pdfService->generate($data);
+
+    return response($pdf, 200, [
+        'Content-Type'        => 'application/pdf',
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    ]);
+}
 
     public function getStatistics()
     {
@@ -207,16 +236,14 @@ public function builder()
 
 
         public function show(Quote $quote)
-        {
-            $quote->load([
-                'items.block',
-                'replies' => function ($q) {
-                    $q->orderBy('sent_at', 'desc');
-                },
-            ]);
+{
+    $quote->load([
+        'items.block',
+        'replies' => fn ($q) => $q->orderBy('sent_at', 'desc'),
+    ]);
 
-            return view('admin.quotes.show', compact('quote'));
-        }
+    return view('admin.quotes.show', compact('quote'));
+}
 
 
     public function submit(Request $request)

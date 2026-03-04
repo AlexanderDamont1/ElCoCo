@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('type');
             $table->foreignId('category_id')->constrained('quote_block_categories')->onDelete('cascade');
             $table->decimal('base_price', 10, 2)->default(0);
             $table->integer('default_hours')->default(0);

@@ -2,15 +2,18 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuoteController;
-use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\Admin\QuoteBlockController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
-use App\Models\Quote;
 use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 
+/*
+|--------------------------------------------------------------------------
+| CSRF Sanctum
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/sanctum/csrf-cookie', [CsrfCookieController::class, 'show']);
-
 
 /*
 |--------------------------------------------------------------------------
@@ -26,86 +29,91 @@ Route::get('/', function () {
 Route::get('/cotizador', [QuoteController::class, 'builder'])
     ->name('quote.builder');
 
-
 /*
 |--------------------------------------------------------------------------
-| API Pública (sin middleware, para SPA)
+| API Pública (para SPA)
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('/api')->group(function () {
+Route::prefix('api')->group(function () {
 
-    // Cargar bloques para el cotizador
     Route::get('/quote-blocks', [QuoteController::class, 'apiBlocks']);
 
-    // Guardar cotización desde SPA
     Route::post('/quotes/save-draft', [QuoteController::class, 'saveDraft']);
     Route::post('/quotes/generate-pdf', [QuoteController::class, 'generatePdf']);
     Route::post('/quotes/submit', [QuoteController::class, 'submit']);
-
-    // routes/api.php
-Route::post('/quotes/submit-with-appointment', [QuoteController::class, 'submitQuoteWithAppointment']);
+    Route::post('/quotes/submit-with-appointment', [QuoteController::class, 'submitQuoteWithAppointment']);
 });
-
 
 /*
 |--------------------------------------------------------------------------
-| Auth + Dashboard Global
+| Auth + Dashboard
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth', 'verified'])->group(function () {
- 
-    Route::get('/dashboard', fn()=>view('dashboard'))->name('dashboard');
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-   Route::get('/bloques', [QuoteBlockController::class, 'index'])->name('bloques.index');
-
-   Route::get('/bloques/{quoteBlock}/edit', [QuoteBlockController::class, 'edit'])->name('bloques.edit');
-
-   Route::put('/bloques/{quoteBlock}', [QuoteBlockController::class, 'update'])->name('bloques.update');
-   
-   Route::resource('bloques', QuoteBlockController::class);
-   
-   Route::get('/admin/cotizaciones', [QuoteController::class, 'index']) ->name('admin.quotes.index');
-   
-   Route::get('/admin/cotizaciones/{quote}', [QuoteController::class, 'show'])->name('admin.quotes.show');
-        
-   Route::patch('/admin/cotizaciones/{quote}/status', [QuoteController::class, 'updateStatus'])->name('admin.quotes.status');
-
-   Route::post('/admin/quotes/{quote}/reply',[QuoteController::class, 'reply'])->name('admin.quotes.reply');
-
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
     /*
     |--------------------------------------------------------------------------
-    | ADMIN
+    | Profile
     |--------------------------------------------------------------------------
     */
 
- 
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
 
-        // bloques de cotización
-        
-Route::prefix('admin')->name('admin.')->group(function () {
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
 
-     
-    });
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bloques (LIMPIO — solo resource)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource('bloques', QuoteBlockController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Cotizaciones
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('admin/cotizaciones')
+        ->name('admin.quotes.')
+        ->group(function () {
+
+            Route::get('/', [QuoteController::class, 'index'])
+                ->name('index');
+
+            Route::get('/{quote}', [QuoteController::class, 'show'])
+                ->name('show');
+
+            Route::patch('/{quote}/status', [QuoteController::class, 'updateStatus'])
+                ->name('status');
+
+            Route::post('/{quote}/reply', [QuoteController::class, 'reply'])
+                ->name('reply');
+
+            Route::get('/{quote}/pdf', [QuoteController::class, 'generatePdf'])
+                ->name('pdf');
+        });
 });
-
 
 /*
 |--------------------------------------------------------------------------
-| API protegida con Sanctum específicamente
+| API Protegida Sanctum
 |--------------------------------------------------------------------------
 */
 
 Route::middleware(['auth:sanctum'])
-    ->prefix('/api/v1')
+    ->prefix('api/v1')
     ->group(function () {
 
         Route::get('/quotes/statistics', [QuoteController::class, 'getStatistics']);
@@ -113,6 +121,5 @@ Route::middleware(['auth:sanctum'])
         Route::post('/quotes/{id}/duplicate', [QuoteController::class, 'duplicateQuote']);
         Route::get('/quotes/export', [QuoteController::class, 'exportQuotes']);
     });
-
 
 require __DIR__.'/auth.php';
