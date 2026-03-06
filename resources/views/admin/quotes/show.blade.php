@@ -84,7 +84,7 @@
                             Descargar PDF
                         </a>
 
-                        {{-- Cambio de estado rápido --}}
+                        <!-- {{-- Cambio de estado rápido --}}
                         <form action="{{ route('admin.quotes.status', $quote) }}" method="POST" class="inline">
                             @csrf @method('PATCH')
                             <select name="status"
@@ -96,7 +96,7 @@
                                     </option>
                                 @endforeach
                             </select>
-                        </form>
+                        </form> -->
                     </div>
                 </div>
             </div>

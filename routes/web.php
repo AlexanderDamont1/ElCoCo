@@ -6,6 +6,19 @@ use App\Http\Controllers\Admin\QuoteBlockController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
+use Illuminate\Support\Facades\Mail;
+
+
+
+Route::get('/test-mail', function () {
+
+    Mail::raw('Test email funcionando', function ($msg) {
+        $msg->to('cale.13.0611@gmail.com')
+            ->subject('Test Laravel Mail');
+    });
+
+    return 'Correo enviado';
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +91,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     */
 
     Route::resource('bloques', QuoteBlockController::class);
+    Route::post('bloques/categorias', [QuoteBlockController::class, 'storeCategory'])
+    ->name('bloques.categorias.store');
 
     /*
     |--------------------------------------------------------------------------

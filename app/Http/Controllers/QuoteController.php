@@ -377,7 +377,7 @@ private function saveQuoteReply(Quote $quote, string $message, string $meetingDa
 {
     QuoteReply::create([
         'quote_id' => $quote->id,
-       // 'message' => $message,
+        'message' => $message,
         'sent_at' => $meetingDate,  // Aquí guardas la fecha exacta de la cita
     ]);
 }

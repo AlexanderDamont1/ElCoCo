@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('quote_replies', function (Blueprint $table) {
     $table->id();
     $table->foreignId('quote_id')->constrained()->cascadeOnDelete();
-    $table->text('message');
-    $table->string('sent_to_email');
+    $table->text('message')->nullable()->change();
+    $table->string('sent_to_email')->nullable()->change();
     $table->timestamp('sent_at');
     $table->timestamps();
 });

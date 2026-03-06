@@ -55,14 +55,40 @@ class QuoteBlockController extends Controller
             ->with('success', 'Bloque creado exitosamente');
     }
 
-    public function edit(QuoteBlock $quoteBlock)
+    public function storeCategory(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'name'        => 'required|string|max:255|unique:quote_block_categories,name',
+        'description' => 'nullable|string|max:500',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+            ->withErrors($validator, 'category')
+            ->withInput();
+    }
+    
+
+    QuoteBlockCategory::create([
+        'name'        => $request->name,
+        'description' => $request->description,
+        'order'       => QuoteBlockCategory::max('order') + 1,
+        'is_active'   => true,
+    ]);
+
+    return redirect()
+        ->route('bloques.index')
+        ->with('success', 'Categoría creada exitosamente');
+}
+
+    public function edit(QuoteBlock $bloque)
     {
         $categories = QuoteBlockCategory::ordered()->get();
 
-        return view('bloques.edit', compact('quoteBlock', 'categories'));
+        return view('bloques.edit', compact('bloque', 'categories'));
     }
 
-    public function update(Request $request, QuoteBlock $quoteBlock)
+    public function update(Request $request, QuoteBlock $bloque)
     {
         $validator = Validator::make($request->all(), [
             'name'          => 'required|string|max:255',
@@ -75,7 +101,7 @@ class QuoteBlockController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $quoteBlock->update([
+        $bloque->update([
             'name'          => $request->name,
             'description'   => $request->description,
             'category_id'   => $request->category_id,
@@ -90,9 +116,9 @@ class QuoteBlockController extends Controller
             ->with('success', 'Bloque actualizado exitosamente');
     }
 
-    public function destroy(QuoteBlock $quoteBlock)
+    public function destroy(QuoteBlock $bloque)
     {
-        $quoteBlock->delete();
+        $bloque->delete();
 
         return redirect()
             ->route('bloques.index')

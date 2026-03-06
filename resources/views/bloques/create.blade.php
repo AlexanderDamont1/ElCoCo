@@ -174,34 +174,7 @@
                     </div>
                 </div>
 
-                <!-- Campos adicionales -->
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100">
-                        <h2 class="text-lg font-semibold text-gray-900">
-                            Extras / Configuración
-                        </h2>
-                        <span class="text-xs text-gray-500">Opcional</span>
-                    </div>
-                    
-                    <p class="text-sm text-gray-600 mb-4">
-                        Agrega campos adicionales personalizados para este bloque.
-                    </p>
-
-                    <div id="extras-container" class="space-y-3 mb-4">
-                        <!-- Fila inicial se generará con JavaScript -->
-                    </div>
-
-                    <button
-                        type="button"
-                        onclick="addExtra()"
-                        class="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors text-sm text-gray-600 hover:text-blue-700 flex items-center justify-center gap-2"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        Agregar campo extra
-                    </button>
-                </div>
+                
 
                 <!-- Botones de acción -->
                 <div class="flex justify-between items-center mt-6 pt-6 border-t border-gray-200">

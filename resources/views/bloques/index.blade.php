@@ -39,13 +39,7 @@
                         <p class="mt-2 text-gray-600">Administra los bloques de cotización del sistema</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <div class="hidden sm:flex items-center gap-2 bg-white px-4 py-2 rounded-lg border border-gray-200">
-                            <span class="text-sm text-gray-500">Categorías:</span>
-                            <span class="font-semibold text-gray-900">{{ $categories->count() }}</span>
-                            <span class="text-gray-400">|</span>
-                            <span class="text-sm text-gray-500">Bloques:</span>
-                            <span class="font-medium text-gray-900">{{ $categories->sum('blocks_count') }}</span>
-                        </div>
+                        
                         <a href="{{ route('bloques.create') }}" 
                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,6 +47,13 @@
                             </svg>
                             Nuevo Bloque
                         </a>
+                        <button onclick="openCategoryModal()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium shadow-sm border border-gray-300">
+    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5l7 7-7 7-5-5V3z"/>
+    </svg>
+    Nueva Categoría
+</button>
                     </div>
                 </div>
             </div>
@@ -124,30 +125,31 @@
                                     </td>
                                     
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <a href="{{ route('bloques.edit', $block) }}"
-                                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 hover:border-gray-400 transition-colors text-xs font-medium">
-                                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                                Editar
-                                            </a>
-                                            <form action="#" 
-                                                  method="POST" 
-                                                  class="inline"
-                                                  onsubmit="return confirm('¿Estás seguro de eliminar este bloque?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" 
-                                                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-white text-red-600 hover:bg-red-50 border border-red-200 hover:border-red-300 transition-colors text-xs font-medium">
-                                                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                    </svg>
-                                                    Eliminar
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
+    <div class="flex items-center justify-end gap-2">
+
+        <a href="{{ route('bloques.edit', $block) }}"
+           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-white text-gray-700 hover:bg-gray-100 border border-gray-300 hover:border-gray-400 transition-colors text-xs font-medium">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            Editar
+        </a>
+
+        <button
+            onclick="openDeleteModal({{ $block->id }}, '{{ $block->name }}')"
+            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-white text-red-600 hover:bg-red-50 border border-red-200 hover:border-red-300 transition-colors text-xs font-medium">
+
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+
+            Eliminar
+        </button>
+
+    </div>
+</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -193,4 +195,136 @@
             }
         }
     </style>
+
+    <!-- MODAL DELETE -->
+<div id="deleteModal"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+    <div class="bg-white rounded-xl shadow-xl w-[400px] p-6">
+
+        <h2 class="text-lg font-semibold text-gray-800 mb-2">
+            Eliminar bloque
+        </h2>
+
+        <p class="text-sm text-gray-600 mb-6">
+            ¿Seguro que quieres eliminar <span id="blockName" class="font-semibold"></span>?
+        </p>
+
+        <form id="deleteForm" method="POST">
+            @csrf
+            @method('DELETE')
+
+            <div class="flex justify-end gap-3">
+
+                <button type="button"
+                        onclick="closeDeleteModal()"
+                        class="px-4 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Cancelar
+                </button>
+
+                <button type="submit"
+                        class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    Eliminar
+                </button>
+
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<!-- MODAL NUEVA CATEGORÍA -->
+<div id="categoryModal"
+     class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+
+    <div class="bg-white rounded-xl shadow-xl w-[460px] p-6">
+
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="text-lg font-semibold text-gray-800">Nueva Categoría</h2>
+            <button onclick="closeCategoryModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <form action="{{ route('bloques.categorias.store') }}" method="POST" class="space-y-4">
+            @csrf
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       name="name"
+                       value="{{ old('name') }}"
+                       placeholder="Ej. Diseño Web"
+                       required
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-colors">
+                @if($errors->category->has('name'))
+                    <p class="text-xs text-red-500 mt-1">{{ $errors->category->first('name') }}</p>
+                @endif
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Descripción
+                </label>
+                <textarea name="description"
+                          rows="3"
+                          placeholder="Descripción opcional de la categoría"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-colors resize-none">{{ old('description') }}</textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button"
+                        onclick="closeCategoryModal()"
+                        class="px-4 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Crear Categoría
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+
+<script>
+function openDeleteModal(id, name)
+{
+    const modal = document.getElementById('deleteModal')
+    const form = document.getElementById('deleteForm')
+    const blockName = document.getElementById('blockName')
+
+    form.action = `/bloques/${id}`
+    blockName.innerText = name
+
+    modal.classList.remove('hidden')
+    modal.classList.add('flex')
+}
+
+function closeDeleteModal()
+{
+    const modal = document.getElementById('deleteModal')
+
+    modal.classList.remove('flex')
+    modal.classList.add('hidden')
+}
+
+function openCategoryModal() {
+    const modal = document.getElementById('categoryModal')
+    modal.classList.remove('hidden')
+    modal.classList.add('flex')
+}
+
+function closeCategoryModal() {
+    const modal = document.getElementById('categoryModal')
+    modal.classList.remove('flex')
+    modal.classList.add('hidden')
+}
+</script>
 </x-app-layout>
