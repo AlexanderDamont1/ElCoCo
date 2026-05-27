@@ -1,5 +1,5 @@
 <?php
-// app/Models/QuoteItem.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -16,16 +16,20 @@ class QuoteItem extends Model
         'hours',
         'unit_price',
         'total_price',
-        'data'
+        'data',
     ];
 
     protected $casts = [
-        'data' => 'array',
-        'quantity' => 'integer',
-        'hours' => 'integer',
-        'unit_price' => 'decimal:2',
-        'total_price' => 'decimal:2'
+        'data'        => 'array',
+        'quantity'    => 'integer',
+        'hours'       => 'integer',
+        'unit_price'  => 'decimal:2',
+        'total_price' => 'decimal:2',
     ];
+
+    // -------------------------------------------------------------------------
+    // Relaciones
+    // -------------------------------------------------------------------------
 
     public function quote()
     {

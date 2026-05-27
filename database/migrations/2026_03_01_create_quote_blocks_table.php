@@ -12,17 +12,16 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->foreignId('category_id')->constrained('quote_block_categories')->onDelete('cascade');
+            $table->foreignId('category_id')
+                  ->constrained('quote_block_categories')
+                  ->cascadeOnDelete();
             $table->decimal('base_price', 10, 2)->default(0);
             $table->integer('default_hours')->default(0);
             $table->json('config')->nullable();
-            $table->text('formula')->nullable();
-            $table->json('validation_rules')->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('order')->default(0);
             $table->timestamps();
-            
-            // Índices para mejorar el rendimiento
+
             $table->index('category_id');
             $table->index('is_active');
             $table->index('order');

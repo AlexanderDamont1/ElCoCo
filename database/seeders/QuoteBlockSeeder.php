@@ -1,5 +1,4 @@
 <?php
-// database/seeders/QuoteBlockSeeder.php
 
 namespace Database\Seeders;
 
@@ -11,147 +10,138 @@ class QuoteBlockSeeder extends Seeder
 {
     public function run(): void
     {
-        // Crear categorías
         $categories = [
             [
-                'name' => 'Cursos Personalizados',
-                'description' => 'Capacitación y formación especializada',
-                'icon' => 'chalkboard-teacher',
-                'color' => '#3b82f6',
-                'order' => 1
-            ],
-            [
-                'name' => 'Auditorías y Ciberseguridad',
-                'description' => 'Evaluación de seguridad y cumplimiento',
-                'icon' => 'shield-alt',
-                'color' => '#10b981',
-                'order' => 2
-            ],
-            [
-                'name' => 'Mantenimiento',
-                'description' => 'Soporte técnico y mantenimiento preventivo',
-                'icon' => 'tools',
-                'color' => '#f59e0b',
-                'order' => 3
-            ],
-            [
-                'name' => 'Desarrollo de Software',
-                'description' => 'Soluciones tecnológicas a medida',
-                'icon' => 'code',
-                'color' => '#8b5cf6',
-                'order' => 4
-            ],
-            [
-                'name' => 'Consultoría',
-                'description' => 'Asesoría especializada en TI',
-                'icon' => 'handshake',
-                'color' => '#ec4899',
-                'order' => 5
-            ]
-        ];
-        
-        foreach ($categories as $categoryData) {
-            QuoteBlockCategory::create($categoryData);
-        }
-        
-        // Obtener IDs de categorías
-        $coursesCategory = QuoteBlockCategory::where('name', 'Cursos Personalizados')->first();
-        $auditCategory = QuoteBlockCategory::where('name', 'Auditorías y Ciberseguridad')->first();
-        $maintenanceCategory = QuoteBlockCategory::where('name', 'Mantenimiento')->first();
-        $softwareCategory = QuoteBlockCategory::where('name', 'Desarrollo de Software')->first();
-        $consultingCategory = QuoteBlockCategory::where('name', 'Consultoría')->first();
-        
-        // Crear bloques de ejemplo
-        $blocks = [
-            // Cursos
-            [
-                'name' => 'Curso de Ofimática Avanzada',
-                'description' => 'Capacitación en herramientas Office avanzadas',
-                'type' => 'course',
-                'category_id' => $coursesCategory->id,
-                'base_price' => 5000,
-                'default_hours' => 20,
-                'config' => [
-                    'min_participants' => 10,
-                    'price_per_participant' => 500,
-                    'modality' => [
-                        'online' => ['surcharge' => 0, 'label' => 'En línea'],
-                        'onsite' => ['surcharge' => 2000, 'label' => 'En instalaciones']
-                    ]
-                ],
-                'order' => 1
-            ],
-            
-            // Auditorías
-            [
-                'name' => 'Auditoría de Seguridad Informática',
-                'description' => 'Evaluación integral de seguridad de sistemas',
-                'type' => 'audit',
-                'category_id' => $auditCategory->id,
-                'base_price' => 15000,
-                'default_hours' => 40,
-                'config' => [
-                    'scope_levels' => [
-                        'basic' => ['factor' => 0.7, 'label' => 'Básica'],
-                        'standard' => ['factor' => 1.0, 'label' => 'Estándar'],
-                        'comprehensive' => ['factor' => 1.5, 'label' => 'Integral']
+                'name'        => 'Desarrollo Web',
+                'description' => 'Servicios de desarrollo frontend y backend',
+                'order'       => 1,
+                'blocks'      => [
+                    [
+                        'name'          => 'Landing Page',
+                        'description'   => 'Página de aterrizaje con diseño responsivo y formulario de contacto',
+                        'base_price'    => 8500.00,
+                        'default_hours' => 40,
+                        'order'         => 1,
                     ],
-                    'cost_per_system' => 1000
+                    [
+                        'name'          => 'Sitio Web Corporativo',
+                        'description'   => 'Sitio de hasta 8 páginas con CMS, SEO básico y dominio configurado',
+                        'base_price'    => 18000.00,
+                        'default_hours' => 80,
+                        'order'         => 2,
+                    ],
+                    [
+                        'name'          => 'E-commerce',
+                        'description'   => 'Tienda en línea con carrito, pasarela de pago y panel de productos',
+                        'base_price'    => 35000.00,
+                        'default_hours' => 160,
+                        'order'         => 3,
+                    ],
+                    [
+                        'name'          => 'API REST',
+                        'description'   => 'Desarrollo de API con autenticación, documentación y pruebas unitarias',
+                        'base_price'    => 12000.00,
+                        'default_hours' => 60,
+                        'order'         => 4,
+                    ],
                 ],
-                'order' => 1
             ],
-            
-            // Mantenimiento
             [
-                'name' => 'Mantenimiento Preventivo Mensual',
-                'description' => 'Soporte técnico y mantenimiento preventivo',
-                'type' => 'maintenance',
-                'category_id' => $maintenanceCategory->id,
-                'base_price' => 3000,
-                'default_hours' => 10,
-                'config' => [
-                    'periodicity' => 'monthly',
-                    'support_hours' => 10,
-                    'emergency_support' => false
+                'name'        => 'Diseño',
+                'description' => 'Servicios de diseño UI/UX y branding',
+                'order'       => 2,
+                'blocks'      => [
+                    [
+                        'name'          => 'Diseño UI/UX',
+                        'description'   => 'Diseño de interfaces en Figma con prototipo interactivo y guía de estilos',
+                        'base_price'    => 5678.00,
+                        'default_hours' => 40,
+                        'order'         => 1,
+                    ],
+                    [
+                        'name'          => 'Identidad de Marca',
+                        'description'   => 'Logotipo, paleta de color, tipografía y manual de marca básico',
+                        'base_price'    => 7500.00,
+                        'default_hours' => 30,
+                        'order'         => 2,
+                    ],
+                    [
+                        'name'          => 'Rediseño de Interfaz',
+                        'description'   => 'Análisis de UX, propuesta de mejora y entrega de mockups en alta fidelidad',
+                        'base_price'    => 9200.00,
+                        'default_hours' => 50,
+                        'order'         => 3,
+                    ],
                 ],
-                'order' => 1
             ],
-            
-            // Desarrollo de Software
             [
-                'name' => 'Módulo de Autenticación',
-                'description' => 'Sistema de login y gestión de usuarios',
-                'type' => 'software_module',
-                'category_id' => $softwareCategory->id,
-                'base_price' => 25000,
-                'default_hours' => 50,
-                'config' => [
-                    'hourly_rate' => 500,
-                    'integration_hours' => 20,
-                    'complexity_levels' => [
-                        'low' => ['factor' => 0.8, 'label' => 'Baja'],
-                        'medium' => ['factor' => 1.0, 'label' => 'Media'],
-                        'high' => ['factor' => 1.5, 'label' => 'Alta']
-                    ]
+                'name'        => 'Cursos y Capacitación',
+                'description' => 'Cursos técnicos impartidos en línea o presenciales',
+                'order'       => 3,
+                'blocks'      => [
+                    [
+                        'name'          => 'Curso de Excel Avanzado',
+                        'description'   => 'Tablas dinámicas, macros VBA y dashboards. Incluye material descargable',
+                        'base_price'    => 123.00,
+                        'default_hours' => 10,
+                        'order'         => 1,
+                    ],
+                    [
+                        'name'          => 'Curso de Laravel',
+                        'description'   => 'Fundamentos hasta nivel intermedio: MVC, Eloquent, APIs y autenticación',
+                        'base_price'    => 400.00,
+                        'default_hours' => 30,
+                        'order'         => 2,
+                    ],
+                    [
+                        'name'          => 'Taller de Git y GitHub',
+                        'description'   => 'Control de versiones, ramas, pull requests y flujo de trabajo en equipo',
+                        'base_price'    => 250.00,
+                        'default_hours' => 8,
+                        'order'         => 3,
+                    ],
                 ],
-                'formula' => '({base_price} * {complexity_factor}) + ({integration} * 10000)',
-                'order' => 1
             ],
-            
-            // Consultoría
             [
-                'name' => 'Consultoría Estratégica TI',
-                'description' => 'Análisis y planificación de tecnología',
-                'type' => 'generic',
-                'category_id' => $consultingCategory->id,
-                'base_price' => 8000,
-                'default_hours' => 16,
-                'order' => 1
-            ]
+                'name'        => 'Personalizado',
+                'description' => 'Para proyectos con requerimientos fuera de los paquetes estándar',
+                'order'       => 4,
+                'blocks'      => [
+                    [
+                        'name'          => 'Proyecto a Medida',
+                        'description'   => 'Describe tus requerimientos y te preparamos una propuesta personalizada',
+                        'base_price'    => 0.00,
+                        'default_hours' => 0,
+                        'order'         => 1,
+                    ],
+                ],
+            ],
         ];
-        
-        foreach ($blocks as $blockData) {
-            QuoteBlock::create($blockData);
+
+        foreach ($categories as $categoryData) {
+            $blocks = $categoryData['blocks'];
+            unset($categoryData['blocks']);
+
+            $category = QuoteBlockCategory::updateOrCreate(
+                ['name' => $categoryData['name']],
+                array_merge($categoryData, ['is_active' => true])
+            );
+
+            foreach ($blocks as $blockData) {
+                QuoteBlock::updateOrCreate(
+                    [
+                        'name'        => $blockData['name'],
+                        'category_id' => $category->id,
+                    ],
+                    array_merge($blockData, [
+                        'category_id' => $category->id,
+                        'config'      => [],
+                        'is_active'   => true,
+                    ])
+                );
+            }
+
+            $this->command->info("✓ Categoría \"{$category->name}\" con " . count($blocks) . " bloques");
         }
     }
 }

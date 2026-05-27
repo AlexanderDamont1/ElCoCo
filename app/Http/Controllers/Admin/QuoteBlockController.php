@@ -12,9 +12,9 @@ class QuoteBlockController extends Controller
 {
     public function index()
     {
-        $categories = QuoteBlockCategory::with(['blocks' => function ($q) {
-            $q->ordered();
-        }])->ordered()->get();
+        $categories = QuoteBlockCategory::with([
+            'blocks' => fn ($q) => $q->ordered(),
+        ])->ordered()->get();
 
         return view('bloques.index', compact('categories'));
     }
@@ -22,7 +22,6 @@ class QuoteBlockController extends Controller
     public function create()
     {
         $categories = QuoteBlockCategory::ordered()->get();
-
         return view('bloques.create', compact('categories'));
     }
 
@@ -50,41 +49,35 @@ class QuoteBlockController extends Controller
             'is_active'     => $request->boolean('is_active', true),
         ]);
 
-        return redirect()
-            ->route('bloques.index')
-            ->with('success', 'Bloque creado exitosamente');
+        return redirect()->route('bloques.index')->with('success', 'Bloque creado exitosamente');
     }
 
     public function storeCategory(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'name'        => 'required|string|max:255|unique:quote_block_categories,name',
-        'description' => 'nullable|string|max:500',
-    ]);
+    {
+        $validator = Validator::make($request->all(), [
+            'name'        => 'required|string|max:255|unique:quote_block_categories,name',
+            'description' => 'nullable|string|max:500',
+        ]);
 
-    if ($validator->fails()) {
-        return redirect()->back()
-            ->withErrors($validator, 'category')
-            ->withInput();
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator, 'category')
+                ->withInput();
+        }
+
+        QuoteBlockCategory::create([
+            'name'        => $request->name,
+            'description' => $request->description,
+            'order'       => QuoteBlockCategory::max('order') + 1,
+            'is_active'   => true,
+        ]);
+
+        return redirect()->route('bloques.index')->with('success', 'Categoría creada exitosamente');
     }
-    
-
-    QuoteBlockCategory::create([
-        'name'        => $request->name,
-        'description' => $request->description,
-        'order'       => QuoteBlockCategory::max('order') + 1,
-        'is_active'   => true,
-    ]);
-
-    return redirect()
-        ->route('bloques.index')
-        ->with('success', 'Categoría creada exitosamente');
-}
 
     public function edit(QuoteBlock $bloque)
     {
         $categories = QuoteBlockCategory::ordered()->get();
-
         return view('bloques.edit', compact('bloque', 'categories'));
     }
 
@@ -111,33 +104,19 @@ class QuoteBlockController extends Controller
             'is_active'     => $request->boolean('is_active', true),
         ]);
 
-        return redirect()
-            ->route('bloques.index')
-            ->with('success', 'Bloque actualizado exitosamente');
+        return redirect()->route('bloques.index')->with('success', 'Bloque actualizado exitosamente');
     }
 
     public function destroy(QuoteBlock $bloque)
     {
         $bloque->delete();
-
-        return redirect()
-            ->route('bloques.index')
-            ->with('success', 'Bloque eliminado exitosamente');
+        return redirect()->route('bloques.index')->with('success', 'Bloque eliminado exitosamente');
     }
 
-    public function reorder(Request $request)
+    public function show(QuoteBlock $bloque)
     {
-        $request->validate([
-            'blocks'         => 'required|array',
-            'blocks.*.id'    => 'required|exists:quote_blocks,id',
-            'blocks.*.order' => 'required|integer',
-        ]);
-
-        foreach ($request->blocks as $block) {
-            QuoteBlock::where('id', $block['id'])->update(['order' => $block['order']]);
-        }
-
-        return response()->json(['success' => true]);
+        // Requerido por Route::resource — redirige al edit
+        return redirect()->route('bloques.edit', $bloque);
     }
 
     private function processConfig(?array $extras): array
@@ -147,12 +126,10 @@ class QuoteBlockController extends Controller
         }
 
         $config = [];
-
         foreach ($extras as $item) {
-            if (empty($item['key']) || !array_key_exists('value', $item)) {
+            if (empty($item['key']) || ! array_key_exists('value', $item)) {
                 continue;
             }
-
             $config[] = [
                 $item['key'] => is_numeric($item['value']) ? $item['value'] + 0 : $item['value'],
             ];

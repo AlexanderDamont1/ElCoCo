@@ -1,5 +1,5 @@
 <?php
-// app/Models/QuoteBlockCategory.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -9,21 +9,17 @@ class QuoteBlockCategory extends Model
     protected $fillable = [
         'name',
         'description',
-        'icon',
-        'color',
+        'is_active',
         'order',
-        'is_active'
     ];
 
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
     ];
 
-    public function blocks()
-{
-    return $this->hasMany(QuoteBlock::class, 'category_id');
-}
-
+    // -------------------------------------------------------------------------
+    // Scopes
+    // -------------------------------------------------------------------------
 
     public function scopeActive($query)
     {
@@ -33,5 +29,14 @@ class QuoteBlockCategory extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('order');
+    }
+
+    // -------------------------------------------------------------------------
+    // Relaciones
+    // -------------------------------------------------------------------------
+
+    public function blocks()
+    {
+        return $this->hasMany(QuoteBlock::class, 'category_id');
     }
 }

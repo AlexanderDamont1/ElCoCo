@@ -1,11 +1,8 @@
 <?php
-// app/Models/Quote.php
+
 namespace App\Models;
 
-
-
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Quote extends Model
 {
@@ -15,7 +12,6 @@ class Quote extends Model
         'client_email',
         'client_company',
         'client_phone',
-        'cita',
         'additional_requirements',
         'data',
         'subtotal',
@@ -24,42 +20,59 @@ class Quote extends Model
         'total_hours',
         'status',
         'sent_at',
-        'pdf_path'
+        'pdf_path',
     ];
 
     protected $casts = [
-        'data' => 'array',
-        'cita'=> 'array',
-        'sent_at' => 'datetime',
-        'subtotal' => 'decimal:2',
-        'tax' => 'decimal:2',
-        'total' => 'decimal:2',
-        'total_hours' => 'integer'
+        'data'        => 'array',
+        'sent_at'     => 'datetime',
+        'subtotal'    => 'decimal:2',
+        'tax'         => 'decimal:2',
+        'total'       => 'decimal:2',
+        'total_hours' => 'integer',
     ];
 
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
-        static::creating(function ($quote) {
+        static::creating(function (Quote $quote) {
             $quote->reference = 'COT-' . strtoupper(uniqid());
         });
     }
 
-    // AGREGAR ESTA RELACIÓN
+    // -------------------------------------------------------------------------
+    // Relaciones
+    // -------------------------------------------------------------------------
+
     public function items()
     {
         return $this->hasMany(QuoteItem::class);
     }
 
-    public function getPdfUrlAttribute()
+    public function replies()
+    {
+        return $this->hasMany(QuoteReply::class)->orderByDesc('sent_at');
+    }
+
+    // -------------------------------------------------------------------------
+    // Accessors
+    // -------------------------------------------------------------------------
+
+    public function getPdfUrlAttribute(): ?string
     {
         return $this->pdf_path ? asset('storage/' . $this->pdf_path) : null;
     }
 
-
-    public function replies()
+    public function getStatusLabelAttribute(): string
     {
-        return $this->hasMany(QuoteReply::class);
+        return match ($this->status) {
+            'draft'    => 'Borrador',
+            'sent'     => 'Enviada',
+            'accepted' => 'Aceptada',
+            'rejected' => 'Rechazada',
+            'expired'  => 'Expirada',
+            default    => ucfirst($this->status),
+        };
     }
 }
